@@ -78,4 +78,4 @@ class EmbedServer(ls.LitAPI):
 server = ls.LitServer(EmbedServer())
 
 if __name__ == "__main__":
-    server.run(port=8000, generate_client_file=False)
+    server.run(port=8080, generate_client_file=False)
