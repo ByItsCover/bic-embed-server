@@ -14,16 +14,28 @@ variable "tfe_org_name" {
 }
 
 variable "bic_infra_workspace" {
-  type = string
+  type        = string
   description = "Terraform Cloud Workspace BIC-Infra name"
 }
 
 # Lambda
 
 variable "lambda_name" {
-  type = string
-  description = "describe your variable"
-  default = "embed-server-lambda"
+  type        = string
+  description = "Name of Lambda Function"
+  default     = "embed-server-lambda"
+}
+
+variable "lambda_memory" {
+  type        = number
+  description = "Memory in MB alloted to Lambda function"
+  default     = "1024"
+}
+
+variable "lambda_timeout" {
+  type        = number
+  description = "Lambda function timout duration in seconds"
+  default     = "30"
 }
 
 # Elastic Container Registry
