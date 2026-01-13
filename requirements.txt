@@ -1,10 +1,11 @@
 # OpenAI CLIP
+--extra-index-url https://download.pytorch.org/whl/cpu
 torch
 torchvision
 ftfy
 regex
 tqdm
-git+https://github.com/openai/CLIP.git
+open_clip_torch
 
 # Lightning-AI LitServe
 aiohttp

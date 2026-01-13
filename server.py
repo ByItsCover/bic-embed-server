@@ -2,7 +2,7 @@ from PIL import Image
 import io
 import torch
 from torch import Tensor
-import clip
+import open_clip
 
 import asyncio
 import aiohttp
@@ -14,9 +14,9 @@ import litserve as ls
 
 class EmbedServer(ls.LitAPI):
     def setup(self, device):
-        self.model_name = "ViT-B/32"
+        self.model_name = "ViT-B-32"
         self.device = device
-        self.clip_model, self.preprocess = clip.load(self.model_name, device=self.device)
+        self.clip_model, _, self.preprocess = open_clip.create_model_and_transforms(self.model_name, device=self.device)
     
     def decode_request(self, request: Request):
         image_urls: list[str | None] = request["image_urls"]
