@@ -23,20 +23,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Docker Build
+        run: docker build -t ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_REPO }} .
+
       - name: Configure AWS Credentials for github actions
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           audience: sts.amazonaws.com
-          aws-region: ${{secrets.AWS_REGION}}
-          role-to-assume: ${{secrets.AWS_GITHUB_ROLE}}
-
-      - name: Docker Build
-        run: docker build -t ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_REPO }} .
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_GITHUB_ROLE }}
 
       - name: Docker Login
         run: |
           aws ecr get-login-password \
-              --region ${REGION} \
+              --region ${{ secrets.AWS_REGION }} \
           | docker login \
               --username AWS \
               --password-stdin ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
