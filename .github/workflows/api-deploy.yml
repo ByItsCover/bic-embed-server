@@ -20,6 +20,9 @@ jobs:
       AWS_ECR_REPO: cover-repository
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Configure AWS Credentials for github actions
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
