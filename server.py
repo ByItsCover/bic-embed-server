@@ -17,6 +17,7 @@ class EmbedServer(ls.LitAPI):
         self.model_name = "ViT-B-32"
         self.pretrained_path = "clip_model/open_clip_pytorch_model.bin"
         self.device = device
+        print("Device used:", self.device)
         self.clip_model, _, self.preprocess = open_clip.create_model_and_transforms(
                 self.model_name, 
                 pretrained=self.pretrained_path, 
