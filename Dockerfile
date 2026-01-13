@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . /app
 
 RUN pip install --no-cache-dir -r requirements.txt
-ENV AWS_LWA_ASYNC_INIT=true
+#ENV AWS_LWA_ASYNC_INIT=true
 #ENV PORT=8000
 #EXPOSE 8000
 RUN python download_model.py
