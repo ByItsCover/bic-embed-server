@@ -15,8 +15,13 @@ import litserve as ls
 class EmbedServer(ls.LitAPI):
     def setup(self, device):
         self.model_name = "ViT-B-32"
+        self.pretrained_path = "clip_model/open_clip_pytorch_model.bin"
         self.device = device
-        self.clip_model, _, self.preprocess = open_clip.create_model_and_transforms(self.model_name, device=self.device)
+        self.clip_model, _, self.preprocess = open_clip.create_model_and_transforms(
+                self.model_name, 
+                pretrained=self.pretrained_path, 
+                device=self.device
+            )
     
     def decode_request(self, request: Request):
         image_urls: list[str | None] = request["image_urls"]
