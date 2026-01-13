@@ -6,6 +6,7 @@ WORKDIR /app
 COPY . /app
 
 RUN pip install --no-cache-dir -r requirements.txt
-ENV PORT=8000 
+ENV AWS_LWA_ASYNC_INIT=true
+ENV PORT=8000
 EXPOSE 8000
 CMD ["python", "/app/server.py"]

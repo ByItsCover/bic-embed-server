@@ -5,9 +5,11 @@ data "aws_ecr_image" "server_image" {
 
 resource "aws_lambda_function" "server_function" {
   function_name = var.lambda_name
-  timeout       = 10 # seconds
   image_uri     = data.aws_ecr_image.server_image.image_uri
   package_type  = "Image"
+
+  memory_size = 512
+  timeout     = 30 # seconds
 
   role = aws_iam_role.api_function_role.arn
 }
