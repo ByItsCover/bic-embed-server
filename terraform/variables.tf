@@ -25,3 +25,10 @@ variable "lambda_name" {
   description = "describe your variable"
   default = "embed-server-lambda"
 }
+
+# Elastic Container Registry
+
+variable "ecr_repo_name" {
+  type        = string
+  description = "Elastic Container Registry Repository Name"
+}
