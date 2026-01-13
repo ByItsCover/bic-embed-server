@@ -75,7 +75,7 @@ class EmbedServer(ls.LitAPI):
                 "image_embeddings": image_embeddings
             }
 
+server = ls.LitServer(EmbedServer())
 
 if __name__ == "__main__":
-    server = ls.LitServer(EmbedServer())
     server.run(port=8000, generate_client_file=False)

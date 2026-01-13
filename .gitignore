@@ -1,2 +1,3 @@
 #Python Venv
 clipenv/
+__pycache__/
