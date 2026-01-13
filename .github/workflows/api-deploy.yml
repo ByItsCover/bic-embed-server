@@ -30,7 +30,7 @@ jobs:
       - name: Docker Build
         run: docker build -t ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_REPO }} .
 
-      - name Docker Login
+      - name: Docker Login
         run: |
           aws ecr get-login-password \
               --region ${REGION} \
@@ -38,7 +38,7 @@ jobs:
               --username AWS \
               --password-stdin ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
-      - name Docker Push
+      - name: Docker Push
         run: docker push ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_REPO }}
 
   tf-apply:
