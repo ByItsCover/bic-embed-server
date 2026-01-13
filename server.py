@@ -1,8 +1,5 @@
 from PIL import Image
 import io
-import torch
-from torch import Tensor
-import open_clip
 
 import asyncio
 import aiohttp
@@ -10,6 +7,11 @@ from aiohttp import ClientSession
 
 from litserve import Request
 import litserve as ls
+
+from typing import Optional
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from torch import Tensor
 
 
 class EmbedServer(ls.LitAPI):
@@ -19,9 +21,15 @@ class EmbedServer(ls.LitAPI):
         self.device = device
         print("Device used:", self.device)
         self.clip_model = None
+        self._torch = None
     
     def decode_request(self, request: Request):
         if self.clip_model is None:
+            import torch
+            import open_clip
+
+            self._torch = torch
+
             print("Loading model the first time")
             self.clip_model, _, self.preprocess = open_clip.create_model_and_transforms(
                 self.model_name, 
@@ -48,7 +56,7 @@ class EmbedServer(ls.LitAPI):
                 was_processed.append(True)
         
         print(f"Got {len(processed_images)} images")
-        return torch.cat(processed_images, dim=0) if processed_images else None, was_processed
+        return self._torch.cat(processed_images, dim=0) if processed_images else None, was_processed
     
     async def _get_image(self, url: str | None, session: ClientSession):
         try:
@@ -63,10 +71,10 @@ class EmbedServer(ls.LitAPI):
             print(f"Unable to process image url {url} due to {e.__class__}.")
             return None
     
-    def predict(self, processed_images: tuple[Tensor | None, list[bool]]):
+    def predict(self, processed_images: tuple[Optional["Tensor"], list[bool]]):
         images_tensor, was_processed = processed_images
         if images_tensor is not None:
-            with torch.no_grad():
+            with self._torch.no_grad():
                 processed_embeddings = self.clip_model.encode_image(images_tensor).cpu().numpy()
             
             processed_embeddings_list = processed_embeddings.tolist()
@@ -88,4 +96,4 @@ class EmbedServer(ls.LitAPI):
 server = ls.LitServer(EmbedServer(), workers_per_device=1)
 
 if __name__ == "__main__":
-    server.run(port=8080, generate_client_file=False)
+    server.run(port=8000, generate_client_file=False)
