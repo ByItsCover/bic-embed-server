@@ -25,9 +25,9 @@ jobs:
         with:
           audience: sts.amazonaws.com
           aws-region: ${{secrets.AWS_REGION}}
-          role-to-assume: ${{secrets.ROLE_TO_ASSUME}}
+          role-to-assume: ${{secrets.AWS_GITHUB_ROLE}}
 
-      - name Docker Build
+      - name: Docker Build
         run: docker build -t ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_REPO }} .
 
       - name Docker Login
