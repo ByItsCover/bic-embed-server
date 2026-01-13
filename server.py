@@ -15,7 +15,7 @@ import litserve as ls
 class EmbedServer(ls.LitAPI):
     def setup(self, device):
         self.model_name = "ViT-B-32"
-        self.pretrained_path = "clip_model/open_clip_pytorch_model.bin"
+        self.pretrained_path = "clip_model/open_clip_model.safetensors"
         self.device = device
         print("Device used:", self.device)
         self.clip_model, _, self.preprocess = open_clip.create_model_and_transforms(
@@ -84,4 +84,4 @@ class EmbedServer(ls.LitAPI):
 server = ls.LitServer(EmbedServer())
 
 if __name__ == "__main__":
-    server.run(port=8080, generate_client_file=False)
+    server.run(port=8080, generate_client_file=False, workers_per_device=1)
