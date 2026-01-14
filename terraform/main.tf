@@ -18,3 +18,11 @@ resource "aws_lambda_function_url" "server_url" {
   function_name      = aws_lambda_function.server_function.function_name
   authorization_type = "NONE"
 }
+
+resource "aws_lambda_permission" "url_public_access" {
+  statement_id           = "AllowPublicAccess"
+  action                 = "lambda:InvokeFunctionUrl"
+  function_name          = aws_lambda_function.server_function.function_name
+  principal              = "*"
+  function_url_auth_type = "NONE"
+}
