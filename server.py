@@ -1,3 +1,5 @@
+from mangum import Mangum
+
 from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
 from fastapi_injectable.util import async_get_injected_obj
@@ -70,3 +72,5 @@ async def predict(embed_request: EmbedRequest):
     return {
             "image_embeddings": image_embeddings
         }
+
+handler = Mangum(app)
