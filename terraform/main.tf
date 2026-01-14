@@ -13,3 +13,8 @@ resource "aws_lambda_function" "server_function" {
 
   role = aws_iam_role.api_function_role.arn
 }
+
+resource "aws_lambda_function_url" "server_url" {
+  function_name      = aws_lambda_function.server_function.function_name
+  authorization_type = "NONE"
+}
