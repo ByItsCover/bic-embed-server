@@ -26,3 +26,10 @@ resource "aws_lambda_permission" "url_public_access" {
   principal              = "*"
   function_url_auth_type = "NONE"
 }
+
+resource "aws_lambda_permission" "public_access" {
+  statement_id           = "AllowPublicAccessGenerally"
+  action                 = "lambda:InvokeFunction"
+  function_name          = aws_lambda_function.server_function.function_name
+  principal              = "*"
+}
