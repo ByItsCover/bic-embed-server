@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 class EmbedServer(ls.LitAPI):
     def setup(self, device):
+        print("Setting up")
         self.model_name = "ViT-B-32"
         self.pretrained_path = "clip_model/open_clip_model.safetensors"
         self.device = device
@@ -44,12 +45,13 @@ class EmbedServer(ls.LitAPI):
 
     def _load_model(self):
         if self.clip_model is None:
+            print("Loading model the first time")
+
             import torch
             import open_clip
 
             self._torch = torch
 
-            print("Loading model the first time")
             self.clip_model, _, self.preprocess = open_clip.create_model_and_transforms(
                 self.model_name, 
                 pretrained=self.pretrained_path, 
@@ -105,4 +107,5 @@ class EmbedServer(ls.LitAPI):
 server = ls.LitServer(EmbedServer(enable_async=True), devices=1, workers_per_device=1)
 
 if __name__ == "__main__":
+    print("About to run")
     server.run(port=8000, generate_client_file=False)
