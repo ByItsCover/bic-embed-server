@@ -12,4 +12,5 @@ ENV AWS_LWA_ASYNC_INIT=true
 ENV PORT=8000
 EXPOSE 8000
 
-CMD ["fastapi", "run", "/app/server.py", "--port", "8000"]
+#CMD ["fastapi", "run", "/app/server.py", "--port", "8000"]
+CMD ["app.server.handler"]  

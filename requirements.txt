@@ -8,3 +8,6 @@ open_clip_torch
 aiohttp
 fastapi[standard]
 fastapi-injectable
+
+# AWS Lambda
+mangum
