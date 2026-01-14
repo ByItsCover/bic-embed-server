@@ -93,7 +93,7 @@ class EmbedServer(ls.LitAPI):
                 "image_embeddings": image_embeddings
             }
 
-server = ls.LitServer(EmbedServer(), workers_per_device=1)
+server = ls.LitServer(EmbedServer(), devices=1, workers_per_device=1)
 
 if __name__ == "__main__":
     server.run(port=8000, generate_client_file=False)
