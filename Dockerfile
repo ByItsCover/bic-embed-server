@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.12
+ARG PYTHON_VERSION=3.13
 FROM python:$PYTHON_VERSION-slim
 COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adapter /opt/extensions/lambda-adapter
 
@@ -12,4 +12,4 @@ ENV AWS_LWA_ASYNC_INIT=true
 ENV PORT=8000
 EXPOSE 8000
 
-CMD ["python", "/app/server.py"]
+CMD ["fastapi", "run", "/app/server.py", "--port", "8000"]
