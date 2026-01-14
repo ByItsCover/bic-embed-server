@@ -2,11 +2,9 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch
 torchvision
-ftfy
-regex
-tqdm
 open_clip_torch
 
-# Lightning-AI LitServe
+# FastAPI
 aiohttp
-litserve
+fastapi[standard]
+fastapi-injectable
