@@ -4,5 +4,5 @@ bic_infra_workspace = "bic-infra-prod"
 
 ecr_repo_name = "cover-repository"
 
-lambda_memory  = 2048
+lambda_memory  = 4096
 lambda_timeout = 60
