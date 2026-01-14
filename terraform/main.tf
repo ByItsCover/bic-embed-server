@@ -16,7 +16,7 @@ resource "aws_lambda_function" "server_function" {
 
 resource "aws_lambda_function_url" "server_url" {
   function_name      = aws_lambda_function.server_function.function_name
-  authorization_type = "AWS_IAM"
+  authorization_type = "NONE"
 }
 
 resource "aws_lambda_permission" "url_public_access" {
