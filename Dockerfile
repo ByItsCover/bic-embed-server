@@ -1,5 +1,6 @@
 ARG PYTHON_VERSION=3.13
-FROM python:$PYTHON_VERSION-slim
+#FROM python:$PYTHON_VERSION-slim
+FROM public.ecr.aws/lambda/python:$PYTHON_VERSION
 #COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adapter /opt/extensions/lambda-adapter
 
 WORKDIR /app
@@ -13,4 +14,4 @@ RUN python download_model.py
 EXPOSE 8000
 
 #CMD ["fastapi", "run", "/app/server.py", "--port", "8000"]
-CMD ["app.server.handler"]  
+CMD ["server.handler"]  
