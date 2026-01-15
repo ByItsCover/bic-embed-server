@@ -38,6 +38,11 @@ variable "lambda_timeout" {
   default     = "30"
 }
 
+variable "provisioned_concurrent_executions" {
+  type    = string
+  default = "1"
+}
+
 # Elastic Container Registry
 
 variable "ecr_repo_name" {
