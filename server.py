@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     print("Loading state...")
     app_state["model_name"] = "ViT-B-32"
     app_state["pretrained_name"] = os.path.join(
-            os.environ.get('LAMBDA_TASK_ROOT', '.'),
+            os.environ.get('EFS_PATH', '.'),
             "clip_model/open_clip_model.safetensors"
         )
     #app_state["pretrained_name"] = "laion2b_s34b_b79k"
