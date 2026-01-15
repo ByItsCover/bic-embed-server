@@ -8,7 +8,7 @@ resource "aws_efs_file_system" "lambda" {
 
 # Mount target in each subnet
 resource "aws_efs_mount_target" "lambda_mount" {
-  for_each = data.aws_subnet_ids.subnet.ids
+  for_each = data.aws_subnets.subnet.ids
 
   file_system_id  = aws_efs_file_system.lambda.id
   subnet_id       = each.value
