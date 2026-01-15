@@ -11,6 +11,8 @@ resource "aws_lambda_function" "server_function" {
   memory_size = var.lambda_memory
   timeout     = var.lambda_timeout
 
+  publish = true
+
   role = aws_iam_role.api_function_role.arn
 }
 
