@@ -8,6 +8,7 @@ import asyncio
 from aiohttp import ClientSession
 from pydantic import BaseModel
 from typing import Optional
+import os
 
 from helpers import retrieve_images, process_images, get_embeddings
 
@@ -18,7 +19,11 @@ app_state = {}
 async def lifespan(app: FastAPI):
     print("Loading state...")
     app_state["model_name"] = "ViT-B-32"
-    app_state["pretrained_path"] = "clip_model/open_clip_model.safetensors"
+    app_state["pretrained_name"] = os.path.join(
+            os.environ.get('LAMBDA_TASK_ROOT', '.'),
+            "clip_model/open_clip_model.safetensors"
+        )
+    #app_state["pretrained_name"] = "laion2b_s34b_b79k"
     app_state["device"] = "cpu"
     app_state["session"] = ClientSession()
     yield
@@ -38,9 +43,10 @@ async def load_clip():
     print("loading clip...")
     import open_clip
 
+    print("Pretrained path:", app_state["pretrained_name"])
     clip_model, _, preprocess = open_clip.create_model_and_transforms(
             app_state["model_name"], 
-            pretrained=app_state["pretrained_path"], 
+            pretrained=app_state["pretrained_name"], 
             device=app_state["device"]
         )
 
