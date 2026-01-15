@@ -18,7 +18,7 @@ resource "aws_lambda_function" "bootstrap_function" {
   timeout = 120 # 2 minutes
 
   vpc_config {
-    subnet_ids         = data.aws_subnet_ids.subnet.ids
+    subnet_ids         = data.aws_subnets.subnet.ids
     security_group_ids = [data.terraform_remote_state.bic_infra.outputs.efs_sg_id]
   }
 
@@ -42,7 +42,7 @@ resource "aws_lambda_function" "server_function" {
   timeout     = var.lambda_timeout
 
   vpc_config {
-    subnet_ids         = data.aws_subnet_ids.subnet.ids
+    subnet_ids         = data.aws_subnets.subnet.ids
     security_group_ids = [data.terraform_remote_state.bic_infra.outputs.efs_sg_id]
   }
 
