@@ -26,7 +26,7 @@ def handler(event, context):
 
     os.makedirs(destination, exist_ok=True)
 
-    shutil.copy_file(source, os.path.join(destination, filename))
+    shutil.copyfile(source, os.path.join(destination, filename))
 
     # hf_hub_download(
     #     repo_id=repo_id,
