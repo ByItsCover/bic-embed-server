@@ -3,6 +3,9 @@
 torch
 torchvision
 open_clip_torch
+onnx
+onnxruntime
+onnxscript
 
 # FastAPI
 aiohttp
