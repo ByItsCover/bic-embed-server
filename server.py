@@ -1,8 +1,8 @@
 from mangum import Mangum
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI#, Depends
 from contextlib import asynccontextmanager
-from fastapi_injectable.util import async_get_injected_obj, get_injected_obj
+from fastapi_injectable.util import get_injected_obj
 
 import asyncio
 from aiohttp import ClientSession
@@ -11,9 +11,8 @@ from typing import Optional
 import os
 #import time
 
-import torch
-import open_clip
-from onnxruntime import InferenceSession
+#import torch
+#import open_clip
 
 from helpers import retrieve_images, process_images, get_embeddings
 
@@ -50,10 +49,12 @@ async def root():
 
 
 def load_clip():
-    print("loading clip...")
+    print("loading clip (and torch)...")
     #await asyncio.sleep(10)
     #time.sleep(10)
     #import open_clip
+    import torch
+    from onnxruntime import InferenceSession
 
     print("Pretrained path:", app_state["pretrained_name"])
     # clip_model, _, preprocess = open_clip.create_model_and_transforms(
@@ -69,7 +70,7 @@ def load_clip():
             weights_only=False
         )
 
-    print("Loaded all of CLIP")
+    print("Loaded all of CLIP (and torch)")
 
     return clip_session, preprocess
 
@@ -94,6 +95,9 @@ async def predict(embed_request: EmbedRequest):
     processed_images, was_processed = process_images(preprocess, raw_images, app_state["device"])
 
     #torch = await torch_task
+    print("importing torch...")
+    import torch
+    print("okay imported torch")
     images_tensor = torch.cat(processed_images, dim=0) if processed_images else None
 
     image_embeddings = get_embeddings(images_tensor, was_processed, clip_session, torch)
