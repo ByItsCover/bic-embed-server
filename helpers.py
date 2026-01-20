@@ -22,6 +22,7 @@ def get_embeddings(
         torch: ModuleType
     ) -> list[Optional[list[Optional[float]]]]:
 
+    print("Getting embeddings...")
     if images_tensor is not None:
         # with torch.no_grad():
         #     print("Input shape:", images_tensor.shape)
@@ -47,6 +48,7 @@ def get_embeddings(
     else:
         image_embeddings = [None for _ in was_processed]
     
+    print("Got em, returning embeddings")
     return image_embeddings
 
 def process_images(
@@ -55,6 +57,7 @@ def process_images(
         device: str
     ) -> tuple[list["Tensor"], list[bool]]:
 
+    print("Processing images...")
     processed_images = []
     was_processed = []
     for image in raw_images:
@@ -71,6 +74,7 @@ async def retrieve_images(
         session: ClientSession
     ) -> list[Optional[Image]]:
     
+    print("Retrieving images...")
     raw_images = await asyncio.gather(*(get_raw_image(url, session) for url in urls))
     
     print(f"Got {len(raw_images)} images")

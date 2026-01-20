@@ -69,6 +69,8 @@ def load_clip():
             weights_only=False
         )
 
+    print("Loaded all of CLIP")
+
     return clip_session, preprocess
 
 # def load_torch():
