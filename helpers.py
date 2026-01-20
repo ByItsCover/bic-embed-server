@@ -4,22 +4,36 @@ import io
 import asyncio
 from aiohttp import ClientSession
 
+import numpy as np
+
 from types import ModuleType
 from typing import Optional
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from torch import Tensor, nn
     from torchvision.transforms import Compose
+    from onnxruntime import InferenceSession
 
 def get_embeddings(
         images_tensor: Optional["Tensor"], 
-        was_processed: list[bool], clip_model: 
-        "nn.Module", torch: ModuleType
+        was_processed: list[bool], 
+        #clip_model: "nn.Module", 
+        clip_session: "InferenceSession",
+        torch: ModuleType
     ) -> list[Optional[list[Optional[float]]]]:
 
     if images_tensor is not None:
-        with torch.no_grad():
-            processed_embeddings = clip_model.encode_image(images_tensor).cpu().numpy()
+        # with torch.no_grad():
+        #     print("Input shape:", images_tensor.shape)
+        #     processed_embeddings = clip_model.encode_image(images_tensor).cpu().numpy()
+        if hasattr(images_tensor, "detach"):
+            input_data = images_tensor.detach().cpu().numpy().astype(np.float32)
+        else:
+            input_data = np.array(images_tensor, dtype=np.float32)
+
+        input_name = clip_session.get_inputs()[0].name
+        outputs = clip_session.run(None, {input_name: input_data})
+        processed_embeddings = outputs[0]
         
         processed_embeddings_list = processed_embeddings.tolist()
         image_embeddings = []
