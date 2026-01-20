@@ -27,26 +27,6 @@ resource "aws_iam_policy" "function_logging_policy" {
   })
 }
 
-resource "aws_iam_policy" "function_vpc_policy" {
-  name   = "function-vpc-policy"
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        Action: [
-          "ec2:DescribeNetworkInterfaces",
-          "ec2:CreateNetworkInterface",
-          "ec2:DeleteNetworkInterface",
-          "ec2:DescribeInstances",
-          "ec2:AttachNetworkInterface"
-        ],
-        Effect: "Allow",
-        Resource: "*"
-    }
-    ]
-  })
-}
-
 
 resource "aws_iam_role" "api_function_role" {
   name = "lambda_iam_role"
@@ -61,10 +41,5 @@ resource "aws_iam_role_policy_attachment" "basic" {
 
 resource "aws_iam_role_policy_attachment" "function_logging_policy_attachment" {
   policy_arn = aws_iam_policy.function_logging_policy.arn
-  role       = aws_iam_role.api_function_role.id
-}
-
-resource "aws_iam_role_policy_attachment" "function_vpc_policy_attachment" {
-  policy_arn = aws_iam_policy.function_vpc_policy.arn
   role       = aws_iam_role.api_function_role.id
 }

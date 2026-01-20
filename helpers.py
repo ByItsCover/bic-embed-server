@@ -4,8 +4,6 @@ import io
 import asyncio
 from aiohttp import ClientSession
 
-import numpy as np
-
 from types import ModuleType
 from typing import Optional
 from typing import TYPE_CHECKING
@@ -23,6 +21,8 @@ def get_embeddings(
     ) -> list[Optional[list[Optional[float]]]]:
 
     print("Getting embeddings...")
+    import numpy as np
+
     if images_tensor is not None:
         # with torch.no_grad():
         #     print("Input shape:", images_tensor.shape)
