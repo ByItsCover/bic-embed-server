@@ -17,11 +17,12 @@ def hf_download(destination: str):
 
     print(f"Model {repo_id} downloaded to {destination}/")
 
-def quantized_download(destination: str):
+def quantized_download(destination: str, clean_cache: bool = True):
     import torch
     import open_clip
 
     from onnxruntime.quantization import quantize_dynamic, QuantType
+    from onnxruntime.quantization.shape_inference import quant_pre_process
 
     filename = "open_clip_model.safetensors"
 
@@ -41,9 +42,12 @@ def quantized_download(destination: str):
         ),
         "preprocess_path": os.path.join(
             destination,
-            "preprocess.pt"
+            "preprocess.onnx"
         ),
-        "device": "cpu"
+        "device": "cpu",
+        # "interpolation_mode": T.InterpolationMode.BICUBIC,
+        # "transform_mean": OPENAI_DATASET_MEAN,
+        # "transform_std": OPENAI_DATASET_STD,
     }
 
     os.makedirs(destination, exist_ok=True)
@@ -51,7 +55,7 @@ def quantized_download(destination: str):
 
     print("Loading Clip...")
 
-    clip_model, _, preprocess = open_clip.create_model_and_transforms(
+    clip_model, _, _ = open_clip.create_model_and_transforms(
         script_state["model_name"],
         pretrained=script_state["pretrained_name"],
         device=script_state["device"]
@@ -60,35 +64,100 @@ def quantized_download(destination: str):
     print(clip_model)
 
 
-    print("Exporting Preprocess...")
+    # print("Exporting Preprocess...")
 
-    torch.save(preprocess, script_state["preprocess_path"])
+    # torch.save(preprocess, script_state["preprocess_path"])
 
-    print(preprocess)
+    #print(preprocess)
 
 
-    print("Exporting to onnx format...")
+    print("Exporting model to onnx format...")
 
     torch.onnx.export(clip_model.visual,
                   (torch.ones(1, 3, 224, 224),),
                   script_state["onnx_model_path"],
                   input_names = ['input'],
-                  output_names = ['output'])
+                  output_names = ['output'],
+                  #dynamic_shapes = {'x': {0: torch.export.Dim("batch", min=1, max=1024)}}
+                  dynamic_axes={
+                    'input': {0: 'batch_size'},
+                    'output': {0: 'batch_size'}
+                },
+                dynamo=False
+                  )
+
+    # from onnxsim import simplify
+
+    # model_simp, check = simplify(onnx_model.model)
+    # if check:
+    #     onnx.save(model_simp, script_state["onnx_model_path"])
+
+    # Iterate through all nodes to find Concat nodes
+    #print("doin something")
+    #print(onnx_model.model.graph.node)
+
+    # print(onnx_model.model.graph.node.len())
+    # concat_nodes = []
+    # for node in onnx_model.model.graph.node():
+    #     if node.op_type == 'Concat':
+    #         concat_nodes.append(node)
+
+    # print(concat_nodes)
+
+    # print("Exporting Preprocess to ONNX...")
+
+    # class PreprocessModule(torch.nn.Module):
+    #     def __init__(self):
+    #         super().__init__()
+    #         self.transform = T.Compose([
+    #             T.Resize((224, 224), interpolation=script_state["interpolation_mode"]),
+    #             T.CenterCrop((224, 224)),
+    #             #MaybeToTensor(),
+    #             #T.Normalize(mean=script_state["transform_mean"], std=script_state["transform_std"])
+    #         ])
+
+    #     def forward(self, x: torch.Tensor):
+    #         x = self.transform(x)
+    #         return (x - script_state["transform_mean"]) / script_state["transform_std"]
+
+
+    # torch.onnx.export(PreprocessModule(),
+    #               (torch.ones(1, 3, 224, 224),),
+    #               script_state["preprocess_path"],
+    #               input_names = ['input'],
+    #               output_names = ['output'],
+    #               dynamic_shapes = {
+    #                     'x': {
+    #                         0: 'batch_size',
+    #                         2: 'height',
+    #                         3: 'width'
+    #                     },
+    #                     # 'output': {
+    #                     #     0: 'batch_size'
+    #                     # }
+    #                 })
 
 
     print("Quantizing model...")
 
-    quantized_model = quantize_dynamic(script_state["onnx_model_path"],
+    quant_pre_process(script_state["onnx_model_path"],
+        script_state["quant_model_path"],
+        skip_optimization=False,
+        skip_symbolic_shape=True,
+        verbose=3)
+
+    quantize_dynamic(script_state["onnx_model_path"],
                                    script_state["quant_model_path"],
                                    weight_type=QuantType.QUInt8)
 
-    print(quantized_model)
 
-
-    print("Cleaning up...")
-    os.remove(script_state["pretrained_name"])
+    if clean_cache:
+        print("Cleaning up...")
+        os.remove(script_state["pretrained_name"])
+    
     os.remove(script_state["onnx_model_path"])
-    os.remove(script_state["onnx_model_path"] + '.data')
+    if os.path.isfile(script_state["onnx_model_path"] + '.data'):
+        os.remove(script_state["onnx_model_path"] + '.data')
 
 
     print(f"Model {script_state["pretrained_name"]} quantized to {destination}/")

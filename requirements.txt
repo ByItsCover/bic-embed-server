@@ -9,7 +9,7 @@ onnxscript
 
 # FastAPI
 aiohttp
-fastapi[standard]
+fastapi[standard-no-fastapi-cloud-cli]
 fastapi-injectable
 
 # AWS Lambda

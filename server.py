@@ -11,6 +11,8 @@ from typing import Optional
 import os
 #import time
 
+import numpy as np
+
 #import torch
 #import open_clip
 
@@ -32,6 +34,10 @@ async def lifespan(app: FastAPI):
             source_path,
             "clip_model/preprocess.pt"
         )
+    app_state["image_width"] = 224
+    app_state["image_height"] = 224
+    app_state["transform_mean"] = np.array([0.48145466, 0.4578275, 0.40821073])
+    app_state["transform_std"] = np.array([0.26862954, 0.26130258, 0.27577711])
     #app_state["pretrained_name"] = "laion2b_s34b_b79k"
     app_state["device"] = "cpu"
     app_state["session"] = ClientSession()
@@ -53,7 +59,7 @@ def load_clip():
     #await asyncio.sleep(10)
     #time.sleep(10)
     #import open_clip
-    import torch
+    #import torch
     from onnxruntime import InferenceSession
 
     print("Pretrained path:", app_state["pretrained_name"])
@@ -65,14 +71,14 @@ def load_clip():
     clip_session = InferenceSession(app_state["pretrained_name"])
     print("Clip session inputs:")
     print(clip_session.get_inputs())
-    preprocess = torch.load(
-            app_state["preprocess_path"],
-            weights_only=False
-        )
+    # preprocess = torch.load(
+    #         app_state["preprocess_path"],
+    #         weights_only=False
+    #     )
 
-    print("Loaded all of CLIP (and torch)")
+    print("Loaded all of CLIP")
 
-    return clip_session, preprocess
+    return clip_session
 
 # def load_torch():
 #     #time.sleep(10)
@@ -89,18 +95,15 @@ async def predict(embed_request: EmbedRequest):
     #torch_task = asyncio.to_thread(get_injected_obj, load_torch)
 
     #clip, torch, raw_images = await asyncio.gather(clip_task, torch_task, retrieve_images(embed_request.image_urls, app_state["session"]))
-    clip, raw_images = await asyncio.gather(clip_task, retrieve_images(embed_request.image_urls, app_state["session"]))
-    clip_session, preprocess = clip
+    clip_session, raw_images = await asyncio.gather(clip_task, retrieve_images(embed_request.image_urls, app_state["session"]))
+    #clip_session, preprocess = clip
 
-    processed_images, was_processed = process_images(preprocess, raw_images, app_state["device"])
+    processed_images, was_processed = process_images(raw_images, app_state)
 
     #torch = await torch_task
-    print("importing torch...")
-    import torch
-    print("okay imported torch")
-    images_tensor = torch.cat(processed_images, dim=0) if processed_images else None
+    images_array = np.concatenate(processed_images, axis=0) if processed_images else None
 
-    image_embeddings = get_embeddings(images_tensor, was_processed, clip_session, torch)
+    image_embeddings = get_embeddings(images_array, was_processed, clip_session)
 
     return {
             "image_embeddings": image_embeddings
