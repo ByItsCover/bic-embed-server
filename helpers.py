@@ -1,39 +1,43 @@
-from PIL import Image
+from PIL import Image, ImageOps
 import io
 
 import asyncio
 from aiohttp import ClientSession
 
+import numpy as np
+
 from types import ModuleType
 from typing import Optional
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from torch import Tensor, nn
-    from torchvision.transforms import Compose
+    # from torch import Tensor, nn
+    # from torchvision.transforms import Compose
     from onnxruntime import InferenceSession
 
 def get_embeddings(
-        images_tensor: Optional["Tensor"], 
+        images_array: Optional[np.array], 
         was_processed: list[bool], 
         #clip_model: "nn.Module", 
         clip_session: "InferenceSession",
-        torch: ModuleType
+        #torch: ModuleType
     ) -> list[Optional[list[Optional[float]]]]:
 
     print("Getting embeddings...")
-    import numpy as np
 
-    if images_tensor is not None:
+    if images_array is not None:
         # with torch.no_grad():
         #     print("Input shape:", images_tensor.shape)
         #     processed_embeddings = clip_model.encode_image(images_tensor).cpu().numpy()
-        if hasattr(images_tensor, "detach"):
-            input_data = images_tensor.detach().cpu().numpy().astype(np.float32)
-        else:
-            input_data = np.array(images_tensor, dtype=np.float32)
+
+        # if hasattr(images_tensor, "detach"):
+        #     input_data = images_tensor.detach().cpu().numpy().astype(np.float32)
+        # else:
+        #     input_data = np.array(images_tensor, dtype=np.float32)
+        print("Shape of stuff:")
+        print(images_array.shape)
 
         input_name = clip_session.get_inputs()[0].name
-        outputs = clip_session.run(None, {input_name: input_data})
+        outputs = clip_session.run(None, {input_name: images_array.astype(np.float32)})
         processed_embeddings = outputs[0]
         
         processed_embeddings_list = processed_embeddings.tolist()
@@ -52,9 +56,8 @@ def get_embeddings(
     return image_embeddings
 
 def process_images(
-        preprocess: "Compose", 
         raw_images: list[Optional[Image]], 
-        device: str
+        app_state: dict
     ) -> tuple[list["Tensor"], list[bool]]:
 
     print("Processing images...")
@@ -64,10 +67,24 @@ def process_images(
         if image is None:
             was_processed.append(False)
         else:
-            processed_images.append(preprocess(image).unsqueeze(0).to(device))
+            #processed_images.append(preprocess(image, app_state).unsqueeze(0).to(app_state["device"]))
+            processed_images.append(np.expand_dims(preprocess(image, app_state), axis=0))
             was_processed.append(True)
 
     return processed_images, was_processed
+
+def preprocess(
+    image: Image, 
+    app_state: dict
+) -> np.array:
+    #processed_image = image.resize((app_state["image_width"], app_state["image_height"]), resample=Image.Resampling.BICUBIC)
+    processed_image = ImageOps.fit(image, (app_state["image_width"], app_state["image_height"]), method=Image.Resampling.BICUBIC, centering=(0.5, 0.5))
+    processed_image = processed_image.convert('RGB')
+    processed_array = (processed_image - app_state["transform_mean"]) / app_state["transform_std"]
+
+    # 4. Transpose to (Channels, Height, Width) for the model
+    processed_array = processed_array.transpose(2, 0, 1)
+    return processed_array
 
 async def retrieve_images(
         urls: list[Optional[str]], 
