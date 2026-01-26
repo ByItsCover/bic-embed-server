@@ -1,3 +1,4 @@
+/*
 data "aws_ecr_image" "server_image" {
   repository_name = var.ecr_repo_name
   image_tag       = "latest"
@@ -33,3 +34,4 @@ resource "aws_lambda_function_url" "server_url" {
   function_name      = aws_lambda_function.server_function.function_name
   authorization_type = "NONE"
 }
+*/

@@ -1,3 +1,4 @@
+/*
 data "aws_iam_policy_document" "policy-document" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -43,3 +44,4 @@ resource "aws_iam_role_policy_attachment" "function_logging_policy_attachment" {
   policy_arn = aws_iam_policy.function_logging_policy.arn
   role       = aws_iam_role.api_function_role.id
 }
+*/
