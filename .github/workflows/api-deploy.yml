@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_ECR_REPO: cover-repository
+      AWS_ECR_REPO: embed-server
 
     steps:
       - name: Checkout repository
