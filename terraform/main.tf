@@ -1,6 +1,11 @@
-/*
+locals {
+  ecr_repo = data.terraform_remote_state.bic_infra.outputs.embed_server_ecr_name
+  lambda_role_arn = data.terraform_remote_state.bic_infra.outputs.lambda_function_role_arn
+}
+
+
 data "aws_ecr_image" "server_image" {
-  repository_name = var.ecr_repo_name
+  repository_name = local.ecr_repo
   image_tag       = "latest"
 }
 
@@ -12,7 +17,7 @@ resource "aws_lambda_function" "server_function" {
   memory_size = var.lambda_memory
   timeout     = var.lambda_timeout
 
-  role = aws_iam_role.api_function_role.arn
+  role = local.lambda_role_arn
 }
 
 resource "aws_lambda_permission" "url_public_access" {
@@ -34,4 +39,3 @@ resource "aws_lambda_function_url" "server_url" {
   function_name      = aws_lambda_function.server_function.function_name
   authorization_type = "NONE"
 }
-*/

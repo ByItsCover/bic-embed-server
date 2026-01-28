@@ -37,10 +37,3 @@ variable "lambda_timeout" {
   description = "Lambda function timout duration in seconds"
   default     = "30"
 }
-
-# Elastic Container Registry
-
-variable "ecr_repo_name" {
-  type        = string
-  description = "Elastic Container Registry Repository Name"
-}
