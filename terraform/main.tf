@@ -35,27 +35,17 @@ resource "aws_lambda_permission" "public_access" {
 
 # API Gateway
 
-resource "aws_apigatewayv2_integration" "lambda_post" {
+resource "aws_apigatewayv2_integration" "lambda_handler" {
   api_id           = local.api_gw_id
   
   integration_type = "AWS_PROXY"
-  integration_method = "POST"
   integration_uri    = aws_lambda_function.embed_function.invoke_arn
 }
-
-resource "aws_apigatewayv2_integration" "lambda_get" {
-  api_id           = local.api_gw_id
-  
-  integration_type = "AWS_PROXY"
-  integration_method = "GET"
-  integration_uri    = aws_lambda_function.embed_function.invoke_arn
-}
-
 resource "aws_apigatewayv2_route" "predict_post" {
   api_id    = local.api_gw_id
 
   route_key = "POST /predict"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_post.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_handler.id}"
   authorization_type = "AWS_IAM"
 }
 
@@ -63,7 +53,7 @@ resource "aws_apigatewayv2_route" "default_get" {
   api_id    = local.api_gw_id
 
   route_key = "GET /"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_get.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_handler.id}"
   authorization_type = "AWS_IAM"
 }
 
