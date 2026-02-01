@@ -6,6 +6,7 @@ on:
   workflow_run:
     workflows: ["docker-deploy"]
     types:
+        - requested
         - completed
 
 permissions:
