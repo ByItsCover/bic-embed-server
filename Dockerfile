@@ -1,12 +1,22 @@
+# Build Stage
+
 ARG PYTHON_VERSION=3.13
-FROM public.ecr.aws/lambda/python:$PYTHON_VERSION
+FROM python:${PYTHON_VERSION}-slim as build
 
-WORKDIR /app
-COPY . ${LAMBDA_TASK_ROOT}
+WORKDIR /build_dir
+COPY download_model.py requirements_build.txt ./
 
-RUN pip install --no-cache-dir -r ${LAMBDA_TASK_ROOT}/requirements.txt --target "${LAMBDA_TASK_ROOT}"
-RUN python ${LAMBDA_TASK_ROOT}/download_model.py ${LAMBDA_TASK_ROOT}
+RUN pip install --no-cache-dir -r requirements_build.txt
+RUN python download_model.py ./
 
-EXPOSE 8000
+# Deploy Stage
+
+FROM public.ecr.aws/lambda/python:${PYTHON_VERSION} as deploy
+
+WORKDIR ${LAMBDA_TASK_ROOT}
+COPY --from=build /build_dir/clip_model/clip_quantized.onnx ./clip_model/
+COPY server.py requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
 CMD [ "server.handler" ]

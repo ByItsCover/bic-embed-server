@@ -1,11 +1,6 @@
 # OpenAI CLIP
---extra-index-url https://download.pytorch.org/whl/cpu
-torch
-torchvision
-open_clip_torch
-onnx
 onnxruntime
-onnxscript
+numpy
 
 # FastAPI
 aiohttp

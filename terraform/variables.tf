@@ -5,6 +5,11 @@ variable "aws_region" {
   description = "AWS Region"
 }
 
+variable "environment" {
+  type        = string
+  description = "Deployment Environment"
+}
+
 # Terraform Cloud
 
 variable "tfe_org_name" {
