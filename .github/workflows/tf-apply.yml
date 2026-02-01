@@ -6,7 +6,6 @@ on:
   workflow_run:
     workflows: ["docker-deploy"]
     types:
-        - requested
         - completed
 
 permissions:
@@ -19,7 +18,7 @@ jobs:
     # The type of runner that the job will run on
     name: Terraform apply
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'skipped' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     defaults:
       run:

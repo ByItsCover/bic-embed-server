@@ -16,17 +16,38 @@ permissions:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  deploy:
-    name: Build and Push
+  check-changes:
+    name: Check for Changes
     runs-on: ubuntu-latest
 
-    env:
-      AWS_ECR_REPO: embed-server
+    outputs:
+      # Exposes the 'src' filter result to other jobs
+      should_deploy: ${{ steps.filter.outputs.src }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Paths Filter
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            src:
+              - '!terraform/**'
+              - '!.github/workflows/**'
+              - '!**.md'
+
+  deploy:
+    name: Build and Push
+    runs-on: ubuntu-latest
+    needs: check-changes
+    if: needs.check-changes.outputs.should_deploy == 'true'
+
+    env:
+      AWS_ECR_REPO: embed-server
+
+    steps:
       - name: Docker Build
         run: docker build -t ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_REPO }} .
 
