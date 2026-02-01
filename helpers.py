@@ -6,7 +6,6 @@ from aiohttp import ClientSession
 
 import numpy as np
 
-from types import ModuleType
 from typing import Optional
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -43,7 +42,7 @@ def get_embeddings(
     return image_embeddings
 
 def process_images(
-        raw_images: list[Optional[Image]], 
+        raw_images: list[Optional[Image.Image]], 
         image_width: int,
         image_height: int,
         transform_mean: np.array,
@@ -87,7 +86,7 @@ def preprocess(
 async def retrieve_images(
         urls: list[Optional[str]], 
         session: ClientSession
-    ) -> list[Optional[Image]]:
+    ) -> list[Optional[Image.Image]]:
     
     print("Retrieving images...")
     raw_images = await asyncio.gather(*(get_raw_image(url, session) for url in urls))
@@ -98,7 +97,7 @@ async def retrieve_images(
 async def get_raw_image(
         url: Optional[str], 
         session: ClientSession
-    ) -> Optional[Image]:
+    ) -> Optional[Image.Image]:
 
     try:
         if url is None:
