@@ -18,7 +18,7 @@ jobs:
     # The type of runner that the job will run on
     name: Terraform apply
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'skipped' }}
 
     defaults:
       run:
