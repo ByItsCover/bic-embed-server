@@ -55,6 +55,7 @@ resource "aws_apigatewayv2_route" "predict_post" {
   authorization_type = "AWS_IAM"
 }
 
+/*
 resource "aws_apigatewayv2_route" "default_get" {
   api_id    = local.api_gw_id
 
@@ -62,6 +63,7 @@ resource "aws_apigatewayv2_route" "default_get" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda_get.id}"
   authorization_type = "AWS_IAM"
 }
+*/
 
 resource "aws_apigatewayv2_stage" "embed_stage" {
   api_id      = local.api_gw_id
