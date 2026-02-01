@@ -40,7 +40,12 @@ resource "aws_apigatewayv2_integration" "lambda_handler" {
   
   integration_type = "AWS_PROXY"
   integration_uri    = aws_lambda_function.embed_function.invoke_arn
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
+
 resource "aws_apigatewayv2_route" "predict_post" {
   api_id    = local.api_gw_id
 
