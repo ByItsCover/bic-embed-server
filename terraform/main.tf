@@ -63,7 +63,7 @@ resource "aws_apigatewayv2_route" "default_get" {
   api_id    = local.api_gw_id
 
   route_key = "GET /"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_post.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_get.id}"
   authorization_type = "AWS_IAM"
 }
 
