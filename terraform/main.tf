@@ -30,13 +30,13 @@ resource "aws_lambda_permission" "public_access" {
   function_name          = aws_lambda_function.embed_function.function_name
   principal              = "apigateway.amazonaws.com"
 
-  source_arn = "${api_gw_arn}/*/*"
+  source_arn = "${local.api_gw_arn}/*/*"
 }
 
 # API Gateway
 
 resource "aws_apigatewayv2_integration" "lambda_post" {
-  api_id           = aws_apigatewayv2_api.embed_api.id
+  api_id           = local.api_gw_id
   
   integration_type = "AWS_PROXY"
   integration_method = "POST"
@@ -44,7 +44,7 @@ resource "aws_apigatewayv2_integration" "lambda_post" {
 }
 
 resource "aws_apigatewayv2_integration" "lambda_get" {
-  api_id           = aws_apigatewayv2_api.embed_api.id
+  api_id           = local.api_gw_id
   
   integration_type = "AWS_PROXY"
   integration_method = "GET"
@@ -52,7 +52,7 @@ resource "aws_apigatewayv2_integration" "lambda_get" {
 }
 
 resource "aws_apigatewayv2_route" "predict_post" {
-  api_id    = aws_apigatewayv2_api.embed_api.id
+  api_id    = local.api_gw_id
 
   route_key = "POST /predict"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_post.id}"
@@ -60,7 +60,7 @@ resource "aws_apigatewayv2_route" "predict_post" {
 }
 
 resource "aws_apigatewayv2_route" "default_get" {
-  api_id    = aws_apigatewayv2_api.embed_api.id
+  api_id    = local.api_gw_id
 
   route_key = "GET /"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_post.id}"
@@ -68,7 +68,7 @@ resource "aws_apigatewayv2_route" "default_get" {
 }
 
 resource "aws_apigatewayv2_stage" "embed_stage" {
-  api_id      = aws_apigatewayv2_api.embed_api.id
+  api_id      = local.api_gw_id
 
   name        = var.environment
   auto_deploy = true
