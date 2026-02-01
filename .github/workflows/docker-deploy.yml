@@ -27,9 +27,9 @@ jobs:
         with:
           filters: |
             src:
-              - '!terraform/**'
-              - '!.github/workflows/**'
-              - '!**.md'
+              - '**.py'
+              - '**.txt'
+              - 'Dockerfile'
 
   deploy:
     name: Build and Push
@@ -41,6 +41,9 @@ jobs:
       AWS_ECR_REPO: embed-server
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Docker Build
         run: docker build -t ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.AWS_ECR_REPO }} .
 
