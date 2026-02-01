@@ -1,8 +1,8 @@
 locals {
   ecr_repo = data.terraform_remote_state.bic_infra.outputs.embed_server_ecr_name
   lambda_role_arn = data.terraform_remote_state.bic_infra.outputs.lambda_function_role_arn
-  api_gw_id = data.terraform_remote_state.bic_infra.api_gw_id
-  api_gw_arn = data.terraform_remote_state.bic_infra.api_gw_arn
+  api_gw_id = data.terraform_remote_state.bic_infra.outputs.api_gw_id
+  api_gw_arn = data.terraform_remote_state.bic_infra.outputs.api_gw_arn
 }
 
 
