@@ -1,27 +1,20 @@
 name: docker-deploy
 
 on:
-  # Triggers the workflow on push request event but only for the "master" branch
   workflow_dispatch:
   push:
     branches: ["master"]
-    paths-ignore:
-      - 'terraform/**'
-      - '.github/workflows/**'
-      - '**.md'
 
 permissions:
   id-token: write
   contents: read
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   check-changes:
     name: Check for Changes
     runs-on: ubuntu-latest
 
     outputs:
-      # Exposes the 'src' filter result to other jobs
       should_deploy: ${{ steps.filter.outputs.src }}
 
     steps:
