@@ -43,7 +43,7 @@ resource "aws_apigatewayv2_integration" "lambda_post" {
   integration_uri    = aws_lambda_function.embed_function.invoke_arn
 }
 
-resource "aws_apigatewayv2_integration" "lambda_post" {
+resource "aws_apigatewayv2_integration" "lambda_get" {
   api_id           = aws_apigatewayv2_api.embed_api.id
   
   integration_type = "AWS_PROXY"
