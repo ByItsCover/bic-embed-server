@@ -1,6 +1,7 @@
 # OpenAI CLIP
 onnxruntime
 numpy
+pillow
 
 # FastAPI
 aiohttp
