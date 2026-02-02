@@ -8,6 +8,8 @@ from typing import Optional
 
 import numpy as np
 
+import os
+
 
 app_state = {}
 
@@ -83,4 +85,5 @@ async def predict(embed_request: EmbedRequest):
             "image_embeddings": image_embeddings
         }
 
-handler = Mangum(app)
+stage = os.environ.get("ENVIRONMENT", "")
+handler = Mangum(app, api_gateway_base_path=f"/{stage}")

@@ -39,6 +39,6 @@ variable "lambda_memory" {
 
 variable "lambda_timeout" {
   type        = number
-  description = "Lambda function timout duration in seconds"
+  description = "Lambda function timeout duration in seconds"
   default     = "30"
 }

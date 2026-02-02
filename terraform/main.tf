@@ -22,6 +22,12 @@ resource "aws_lambda_function" "embed_function" {
   timeout     = var.lambda_timeout
 
   role = local.lambda_role_arn
+
+  environment {
+    variables = {
+      ENVIRONMENT = var.environment
+    }
+  }
 }
 
 resource "aws_lambda_permission" "public_access" {
