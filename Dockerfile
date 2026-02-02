@@ -15,7 +15,7 @@ FROM public.ecr.aws/lambda/python:${PYTHON_VERSION} AS deploy
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY --from=build /build_dir/clip_model/clip_quantized.onnx ./clip_model/
-COPY server.py requirements.txt ./
+COPY server.py helpers.py requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
