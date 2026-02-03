@@ -6,16 +6,18 @@ from aiohttp import ClientSession
 
 import numpy as np
 
-from typing import Optional
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    print("Importing onnxruntime (should not happen in lambda)")
-    from onnxruntime import InferenceSession
+from onnxruntime import InferenceSession
+
+# from typing import Optional
+# from typing import TYPE_CHECKING
+# if TYPE_CHECKING:
+#     print("Importing onnxruntime (should not happen in lambda)")
+#     from onnxruntime import InferenceSession
 
 def get_embeddings(
         images_array: Optional[np.array], 
         was_processed: list[bool], 
-        clip_session: "InferenceSession"
+        clip_session: InferenceSession
     ) -> list[Optional[list[Optional[float]]]]:
 
     print("Getting embeddings...")
@@ -79,7 +81,7 @@ def preprocess(
     processed_image = processed_image.convert('RGB')
     processed_array = (processed_image - transform_mean) / transform_std
 
-    # 4. Transpose to (Channels, Height, Width) for the model
+    # Transpose to (Channels, Height, Width) for the model
     processed_array = processed_array.transpose(2, 0, 1)
     return processed_array
 

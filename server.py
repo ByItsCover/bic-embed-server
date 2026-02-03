@@ -1,23 +1,27 @@
 from mangum import Mangum
 
-from fastapi import FastAPI#, Depends
+from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from pydantic import BaseModel
 from typing import Optional
 
 import numpy as np
+from aiohttp import ClientSession
 
 import os
+
+import onnxruntime as ort
+import asyncio
+from fastapi_injectable.util import get_injected_obj
+
+from helpers import retrieve_images, process_images, get_embeddings
 
 
 app_state = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from aiohttp import ClientSession
-    import os
-
     source_path = os.environ.get('LAMBDA_TASK_ROOT', '.')
     app_state["model_name"] = "ViT-B-32"
     app_state["pretrained_name"] = os.path.join(
@@ -44,11 +48,9 @@ async def root():
 
 
 def load_clip():
-    import onnxruntime as ort
-
     opts = ort.SessionOptions()
-    opts.intra_op_num_threads = 1
-    opts.inter_op_num_threads = 1
+    opts.intra_op_num_threads = 2
+    opts.inter_op_num_threads = 2
     opts.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
 
     clip_session = ort.InferenceSession(app_state["pretrained_name"], opts, providers=["CPUExecutionProvider"])
@@ -61,10 +63,6 @@ class EmbedRequest(BaseModel):
 
 @app.post("/predict")
 async def predict(embed_request: EmbedRequest):
-    import asyncio
-    from fastapi_injectable.util import get_injected_obj
-    from helpers import retrieve_images, process_images, get_embeddings
-
     clip_task = asyncio.to_thread(get_injected_obj, load_clip)
     clip_session, raw_images = await asyncio.gather(
             clip_task, 
