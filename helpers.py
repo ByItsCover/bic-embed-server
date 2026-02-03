@@ -8,7 +8,7 @@ import numpy as np
 
 from onnxruntime import InferenceSession
 
-# from typing import Optional
+from typing import Optional
 # from typing import TYPE_CHECKING
 # if TYPE_CHECKING:
 #     print("Importing onnxruntime (should not happen in lambda)")
