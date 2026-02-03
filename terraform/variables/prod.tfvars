@@ -3,5 +3,5 @@ environment = "prod"
 
 bic_infra_workspace = "bic-infra-prod"
 
-lambda_memory  = 1024
+lambda_memory  = 2048
 lambda_timeout = 30
