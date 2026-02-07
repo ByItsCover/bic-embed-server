@@ -1,9 +1,18 @@
 import os
 import sys
 
-def hf_download(destination: str):
-    from huggingface_hub import hf_hub_download
+from huggingface_hub import hf_hub_download
 
+import torch
+import open_clip
+
+import onnx
+from onnxruntime.quantization import quantize_dynamic, QuantType
+from onnxruntime.quantization.shape_inference import quant_pre_process
+
+
+def hf_download(destination: str):
+    
     repo_id = "laion/CLIP-ViT-B-32-256x256-DataComp-s34B-b86K"
     filename = "open_clip_model.safetensors"
 
@@ -17,13 +26,10 @@ def hf_download(destination: str):
 
     print(f"Model {repo_id} downloaded to {destination}/")
 
-def quantized_download(destination: str, clean_cache: bool = True):
-    import torch
-    import open_clip
-
-    import onnx
-    from onnxruntime.quantization import quantize_dynamic, QuantType
-    from onnxruntime.quantization.shape_inference import quant_pre_process
+def quantized_download(
+        destination: str, 
+        clean_cache: bool = True
+    ):
 
     filename = "open_clip_model.safetensors"
 
