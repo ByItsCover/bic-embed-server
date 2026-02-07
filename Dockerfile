@@ -1,22 +1,41 @@
 # Build Stage
 
 ARG PYTHON_VERSION=3.13
+ARG FUNCTION_DIR="/app/function/"
+
 FROM python:${PYTHON_VERSION}-slim AS build
 
-WORKDIR /build_dir
-COPY download_model.py build_requirements.txt ./
+RUN apt-get update && apt-get install -y \
+    g++ \
+    make \
+    cmake \
+    unzip \
+    libcurl4-openssl-dev
+
+ARG FUNCTION_DIR
+
+RUN mkdir -p ${FUNCTION_DIR}
+
+COPY . ${FUNCTION_DIR}
+
+COPY download_model.py build_requirements.txt requirements.txt ./
 
 RUN pip install --no-cache-dir -r build_requirements.txt
-RUN python download_model.py ./
+RUN python download_model.py ${FUNCTION_DIR}
+RUN pip install --no-cache-dir awslambdaric --target ${FUNCTION_DIR}
+RUN pip install --no-cache-dir -r requirements.txt --target ${FUNCTION_DIR}
 
 # Deploy Stage
 
-FROM public.ecr.aws/lambda/python:${PYTHON_VERSION} AS deploy
+FROM python:${PYTHON_VERSION}-slim AS deploy
 
-WORKDIR ${LAMBDA_TASK_ROOT}
-COPY --from=build /build_dir/clip_model/clip_quantized.onnx ./clip_model/
-COPY server.py helpers.py requirements.txt ./
+ARG FUNCTION_DIR
 
-RUN pip install --no-cache-dir -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+WORKDIR ${FUNCTION_DIR}
+
+COPY --from=build ${FUNCTION_DIR} ${FUNCTION_DIR}
+COPY server.py helpers.py ./
+
+ENTRYPOINT [ "python", "-m", "awslambdaric"]
 
 CMD [ "server.handler" ]
