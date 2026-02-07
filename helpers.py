@@ -46,7 +46,7 @@ async def get_embeddings(
     user_data = Future()
     print("Shape of embedding input:", images_array.shape)
 
-    clip_session.run_async(None, {"x": images_array.astype(np.float32)}, callback, user_data)
+    clip_session.run_async(None, {"images": images_array}, callback, user_data)
     
     image_embeddings = await asyncio.wrap_future(user_data)
 
@@ -93,7 +93,6 @@ def preprocess(
     processed_image = processed_image.convert('RGB')
     processed_array = (processed_image - transform_mean) / transform_std
 
-    # Transpose to (Channels, Height, Width) for the model
     processed_array = processed_array.transpose(2, 0, 1)
     return processed_array
 
@@ -103,9 +102,6 @@ async def retrieve_images(
     ) -> list[Optional[Image.Image]]:
     
     print("Retrieving images...")
-    # for i in range(8, 0, -1):
-    #     print("asyncio sleeping for", i)
-    #     await asyncio.sleep(1)
     
     raw_images = await asyncio.gather(*(get_raw_image(url, session) for url in urls))
     print(f"Got {len(raw_images)} images")
