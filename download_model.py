@@ -12,7 +12,7 @@ from onnxruntime.quantization.shape_inference import quant_pre_process
 
 
 def hf_download(destination: str):
-    
+
     repo_id = "laion/CLIP-ViT-B-32-256x256-DataComp-s34B-b86K"
     filename = "open_clip_model.safetensors"
 
@@ -72,6 +72,7 @@ def quantized_download(
         pretrained=script_state["pretrained_name"],
         device=script_state["device"]
     )
+    clip_model.visual.eval()
 
     print(clip_model)
 
@@ -127,4 +128,4 @@ if __name__ == "__main__":
 
     destination = os.path.join(sys.argv[1], "clip_model")
     hf_download(destination)
-    quantized_download(destination)
+    quantized_download(destination, False)
