@@ -1,17 +1,15 @@
+from aiohttp import ClientSession
+import asyncio
+from concurrent.futures import Future
+
 from PIL import Image, ImageOps
 import io
 
-import asyncio
-from concurrent.futures import Future
-from aiohttp import ClientSession
-
-import numpy as np
-
 from onnxruntime import InferenceSession
+import numpy as np
 
 from typing import Optional
 
-import time
 
 async def get_embeddings(
         images_array: Optional[np.array], 
