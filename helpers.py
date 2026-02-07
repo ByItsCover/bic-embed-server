@@ -1,20 +1,17 @@
+from aiohttp import ClientSession
+import asyncio
+from concurrent.futures import Future
+
 from PIL import Image, ImageOps
 import io
 
-import asyncio
-from aiohttp import ClientSession
-
+from onnxruntime import InferenceSession
 import numpy as np
 
-from onnxruntime import InferenceSession
-
 from typing import Optional
-# from typing import TYPE_CHECKING
-# if TYPE_CHECKING:
-#     print("Importing onnxruntime (should not happen in lambda)")
-#     from onnxruntime import InferenceSession
 
-def get_embeddings(
+
+async def get_embeddings(
         images_array: Optional[np.array], 
         was_processed: list[bool], 
         clip_session: InferenceSession
@@ -22,13 +19,16 @@ def get_embeddings(
 
     print("Getting embeddings...")
 
-    if images_array is not None:
-        print("Shape of embedding input:", images_array.shape)
+    if images_array is None:
+        return [None for _ in was_processed]
 
-        input_name = clip_session.get_inputs()[0].name
-        outputs = clip_session.run(None, {input_name: images_array.astype(np.float32)})
-        processed_embeddings = outputs[0]
-        
+    def callback(results: np.ndarray, user_data: asyncio.Queue, err: str):
+        if err:
+            user_data.set_exception(Exception(err))
+            return;
+
+        processed_embeddings = results[0]
+    
         processed_embeddings_list = processed_embeddings.tolist()
         image_embeddings = []
         ind = 0
@@ -38,8 +38,17 @@ def get_embeddings(
                 ind += 1
             else:
                 image_embeddings.append(None)
-    else:
-        image_embeddings = [None for _ in was_processed]
+
+        user_data.set_result(image_embeddings)
+
+    user_data = Future()
+    print("Shape of embedding input:", images_array.shape)
+
+    clip_session.run_async(None, {"images": images_array}, callback, user_data)
+    
+    image_embeddings = await asyncio.wrap_future(user_data)
+
+    print("Len embeddings after:", len(image_embeddings))
 
     return image_embeddings
 
@@ -67,6 +76,7 @@ def process_images(
             processed_images.append(np.expand_dims(processed_image, axis=0))
             was_processed.append(True)
 
+    print("done processing images")
     return processed_images, was_processed
 
 def preprocess(
@@ -81,7 +91,6 @@ def preprocess(
     processed_image = processed_image.convert('RGB')
     processed_array = (processed_image - transform_mean) / transform_std
 
-    # Transpose to (Channels, Height, Width) for the model
     processed_array = processed_array.transpose(2, 0, 1)
     return processed_array
 
@@ -91,9 +100,11 @@ async def retrieve_images(
     ) -> list[Optional[Image.Image]]:
     
     print("Retrieving images...")
+    
     raw_images = await asyncio.gather(*(get_raw_image(url, session) for url in urls))
     print(f"Got {len(raw_images)} images")
 
+    print("just retrieved images!")
     return raw_images
     
 async def get_raw_image(
