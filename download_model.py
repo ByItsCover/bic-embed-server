@@ -19,6 +19,7 @@ def hf_download(destination: str):
 
 def quantized_download(destination: str, clean_cache: bool = True):
     import torch
+    from torch.export import Dim
     import open_clip
 
     from onnxruntime.quantization import quantize_dynamic, QuantType
@@ -35,6 +36,14 @@ def quantized_download(destination: str, clean_cache: bool = True):
         "onnx_model_path": os.path.join(
             destination,
             "clip.onnx"
+        ),
+        "onnx_model_shapes_path": os.path.join(
+            destination,
+            "clip_shapes.onnx"
+        ),
+        "quant_pre_model_path": os.path.join(
+            destination,
+            "clip_pre_quantized.onnx"
         ),
         "quant_model_path": os.path.join(
             destination,
@@ -64,27 +73,43 @@ def quantized_download(destination: str, clean_cache: bool = True):
     print("Exporting model to onnx format...")
 
     torch.onnx.export(clip_model.visual,
-                  (torch.ones(1, 3, 224, 224),),
+                  (torch.ones(2, 3, 224, 224),),
                   script_state["onnx_model_path"],
-                  input_names = ['input'],
-                  output_names = ['output'],
-                  dynamic_axes={
-                      'input': {0: 'batch_size'},
-                      'output': {0: 'batch_size'}
-                  },
-                  dynamo=False
+                  input_names = ['x'],
+                  output_names = ['embeddings'],
+                  # dynamic_axes={
+                  #     'input': {0: 'batch_size'},
+                  #     'output': {0: 'batch_size'}
+                  # },
+                  # dynamic_shapes=((Dim("batch"),
+                  #        torch.export.Dim.STATIC,
+                  #        torch.export.Dim.STATIC,
+                  #        torch.export.Dim.STATIC),
+                  #       ),
+                  dynamic_shapes=({0: torch.export.Dim.DYNAMIC},),
+                  #dynamic_shapes=({0: Dim("batch")},),
+                  #dynamic_shapes={"x": Dim("batch", min=1)}
+                  # dynamic_shapes={
+                  #   "x": {0: Dim("batch", min=2)},
+                  # },
+                  external_data=False
+                  #dynamo=True
                   )
 
 
     print("Quantizing model...")
+    import onnx
+    model = onnx.load(script_state["onnx_model_path"])
+    model = onnx.shape_inference.infer_shapes(model)
+    onnx.save(model, script_state["onnx_model_shapes_path"])
 
-    quant_pre_process(script_state["onnx_model_path"],
-        script_state["quant_model_path"],
+    quant_pre_process(script_state["onnx_model_shapes_path"],
+        script_state["quant_pre_model_path"],
         skip_optimization=False,
         skip_symbolic_shape=True,
         verbose=3)
 
-    quantize_dynamic(script_state["onnx_model_path"],
+    quantize_dynamic(script_state["quant_pre_model_path"],
                                    script_state["quant_model_path"],
                                    weight_type=QuantType.QUInt8)
 
@@ -94,6 +119,8 @@ def quantized_download(destination: str, clean_cache: bool = True):
         os.remove(script_state["pretrained_name"])
     
     os.remove(script_state["onnx_model_path"])
+    os.remove(script_state["onnx_model_shapes_path"])
+    os.remove(script_state["quant_pre_model_path"])
     if os.path.isfile(script_state["onnx_model_path"] + '.data'):
         os.remove(script_state["onnx_model_path"] + '.data')
 
@@ -106,4 +133,4 @@ if __name__ == "__main__":
 
     destination = os.path.join(sys.argv[1], "clip_model")
     hf_download(destination)
-    quantized_download(destination)
+    quantized_download(destination, clean_cache=False)
