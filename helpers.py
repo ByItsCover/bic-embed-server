@@ -87,7 +87,12 @@ def preprocess(
         transform_std: np.array
     ) -> np.array:
 
-    processed_image = ImageOps.fit(image, (image_width, image_height), method=Image.Resampling.BICUBIC, centering=(0.5, 0.5))
+    processed_image = ImageOps.fit(
+            image, 
+            (image_width, image_height), 
+            method=Image.Resampling.BICUBIC, 
+            centering=(0.5, 0.5)
+        )
     processed_image = processed_image.convert('RGB')
     processed_array = (processed_image - transform_mean) / transform_std
 
