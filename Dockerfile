@@ -4,9 +4,9 @@ ARG PYTHON_VERSION=3.13
 FROM python:${PYTHON_VERSION}-slim AS build
 
 WORKDIR /build_dir
-COPY download_model.py requirements_build.txt ./
+COPY download_model.py build_requirements.txt ./
 
-RUN pip install --no-cache-dir -r requirements_build.txt
+RUN pip install --no-cache-dir -r build_requirements.txt
 RUN python download_model.py ./
 
 # Deploy Stage
