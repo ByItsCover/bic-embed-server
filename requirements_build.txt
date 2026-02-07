@@ -3,4 +3,5 @@ torch
 torchvision
 open_clip_torch
 onnxruntime
+onnxscript
 onnx
