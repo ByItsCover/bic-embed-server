@@ -8,3 +8,8 @@ data "terraform_remote_state" "bic_infra" {
     }
   }
 }
+
+data "aws_ecr_image" "embed_image" {
+  repository_name = local.ecr_repo
+  image_tag       = "latest"
+}
