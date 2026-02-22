@@ -15,6 +15,10 @@ resource "aws_lambda_function" "embed_function" {
 
   role = local.lambda_role_arn
 
+  snap_start {
+    apply_on = "PublishedVersions"
+  }
+
   environment {
     variables = {
       ENVIRONMENT = var.environment
