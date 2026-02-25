@@ -10,7 +10,7 @@ from typing import Iterator, Coroutine
 
 import os
 
-from models import EmbedRecord, BatchFailures, Cover
+from models import EmbedRecord, BatchFailures
 from embedder import Embedder
 
 
@@ -120,5 +120,8 @@ class EmbedProcessor:
     def _load_http_session_sync(self):
         self.http_session = ClientSession()
 
-
-processor = EmbedProcessor(os.environ["MODEL_PATH"], os.environ["DB_URI"])
+model_path = os.path.join(
+        os.environ.get('LAMBDA_TASK_ROOT', '.'),
+        "clip_model/clip_quantized.onnx"
+    )
+processor = EmbedProcessor(model_path, os.environ["DB_URI"])
