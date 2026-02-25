@@ -34,7 +34,7 @@ ARG FUNCTION_DIR
 WORKDIR ${FUNCTION_DIR}
 
 COPY --from=build ${FUNCTION_DIR} ${FUNCTION_DIR}
-COPY server.py helpers.py ./
+COPY server.py processor.py embedder.py models.py ./
 
 ENTRYPOINT [ "python", "-m", "awslambdaric"]
 
