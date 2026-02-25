@@ -115,9 +115,6 @@ class EmbedProcessor:
         if self.http_session is not None:
             return;
     
-        await asyncio.to_thread(self._load_http_session_sync)
-
-    def _load_http_session_sync(self):
         self.http_session = ClientSession()
 
 model_path = os.path.join(
