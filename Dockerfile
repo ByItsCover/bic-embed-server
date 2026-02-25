@@ -32,6 +32,7 @@ FROM python:${PYTHON_VERSION}-slim AS deploy
 ARG FUNCTION_DIR
 
 WORKDIR ${FUNCTION_DIR}
+ENV ROOT_DIR=${FUNCTION_DIR}
 
 COPY --from=build ${FUNCTION_DIR} ${FUNCTION_DIR}
 COPY server.py processor.py embedder.py models.py ./

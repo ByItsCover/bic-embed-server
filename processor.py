@@ -60,7 +60,7 @@ class EmbedProcessor:
     
     async def _process_failures(
             self,
-            tasks: Iterator[Coroutine[any, any, EmbedRecord], None, None],
+            tasks: Iterator[Coroutine[any, any, EmbedRecord]],
             failure_list: list[str]
         ) -> list[EmbedRecord]:
 
@@ -121,7 +121,7 @@ class EmbedProcessor:
         self.http_session = ClientSession()
 
 model_path = os.path.join(
-        os.environ.get('LAMBDA_TASK_ROOT', '.'),
+        os.environ.get('ROOT_DIR', '.'),
         "clip_model/clip_quantized.onnx"
     )
 processor = EmbedProcessor(model_path, os.environ["DB_URI"])
