@@ -39,4 +39,4 @@ COPY server.py processor.py embedder.py models.py ./
 
 ENTRYPOINT [ "python", "-m", "awslambdaric"]
 
-CMD [ "server.handler" ]
+CMD [ "server.lambda_handler" ]
