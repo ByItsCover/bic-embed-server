@@ -1,3 +1,4 @@
+/*
 locals {
   api_gw_id = data.terraform_remote_state.bic_infra.outputs.api_gw_id
 }
@@ -37,3 +38,4 @@ resource "aws_apigatewayv2_stage" "embed_stage" {
   name        = var.environment
   auto_deploy = true
 }
+*/
