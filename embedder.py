@@ -54,7 +54,7 @@ class Embedder:
             cover_list.append(cover)
         
         await load_db_task
-        (
+        await (
             self.table.merge_insert(self.id_field)
             .when_matched_update_all()
             .when_not_matched_insert_all()
