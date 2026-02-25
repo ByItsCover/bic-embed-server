@@ -5,13 +5,6 @@ ARG FUNCTION_DIR="/app/function/"
 
 FROM python:${PYTHON_VERSION}-slim AS build
 
-RUN apt-get update && apt-get install -y \
-    g++ \
-    make \
-    cmake \
-    unzip \
-    libcurl4-openssl-dev
-
 ARG FUNCTION_DIR
 
 RUN mkdir -p ${FUNCTION_DIR}
