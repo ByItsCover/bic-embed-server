@@ -5,9 +5,9 @@ locals {
 resource "aws_lambda_event_source_mapping" "sqs_trigger" {
   event_source_arn = local.sqs_arn
   function_name    = aws_lambda_function.embed_function.arn
-  batch_size       = 10
+  batch_size       = var.sqs_batch_size
 
   scaling_config {
-    maximum_concurrency = 100
+    maximum_concurrency = var.sqs_max_concurrency
   }
 }

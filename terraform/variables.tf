@@ -34,11 +34,25 @@ variable "lambda_name" {
 variable "lambda_memory" {
   type        = number
   description = "Memory in MB alloted to Lambda function"
-  default     = "1024"
+  default     = 1024
 }
 
 variable "lambda_timeout" {
   type        = number
   description = "Lambda function timeout duration in seconds"
-  default     = "30"
+  default     = 30
+}
+
+# SQS
+
+variable "sqs_batch_size" {
+  type        = number
+  description = "Max size of SQS batch to lambda"
+  default     = 10
+}
+
+variable "sqs_max_concurrency" {
+  type        = number
+  description = "Maximum concurrency of batches for SQS with lambda"
+  default     = 100
 }
