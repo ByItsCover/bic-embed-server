@@ -56,3 +56,9 @@ variable "sqs_max_concurrency" {
   description = "Maximum concurrency of batches for SQS with lambda"
   default     = 100
 }
+
+variable "sqs_batching_window" {
+  type        = number
+  description = "Maximum batching window for SQS with lambda"
+  default     = 0
+}
