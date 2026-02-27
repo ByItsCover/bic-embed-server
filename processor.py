@@ -36,6 +36,8 @@ class EmbedProcessor:
         ) -> BatchFailures:
 
         batch_failures = BatchFailures(batchItemFailures=[])
+        print("Record json:")
+        print(record_json)
         records = self.records_adapter.validate_python(record_json)
 
         try:
