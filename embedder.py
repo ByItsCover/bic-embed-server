@@ -83,7 +83,7 @@ class Embedder:
                 self.table_name,
                 schema=Cover.to_arrow_schema(),
                 exist_ok=True, 
-                mode="overwrite"
+                #mode="overwrite"
             )
         id_stats = await self.table.index_stats(self.id_field)
         if not id_stats:
