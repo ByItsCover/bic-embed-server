@@ -8,3 +8,4 @@ lambda_timeout = 30
 
 sqs_batch_size      = 100
 sqs_max_concurrency = 100
+sqs_batching_window = 5
