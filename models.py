@@ -8,9 +8,9 @@ class EmbedRecord(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     message_id: str = Field(alias='messageId')
-    cover_id: int = Field(validation_alias=AliasPath('body', 'cover_id'))
-    isbn_13: str = Field(validation_alias=AliasPath('body', 'isbn_13'))
-    image_url: str = Field(validation_alias=AliasPath('body', 'image', 'url'))
+    cover_id: int = Field(validation_alias=AliasPath('messageAttributes', 'cover_id'))
+    isbn_13: str = Field(validation_alias=AliasPath('messageAttributes', 'isbn_13'))
+    image_url: str = Field(alias='body')
     raw_image: Optional[Image.Image] = None
     image_array: Optional[NDArray] = None
 
