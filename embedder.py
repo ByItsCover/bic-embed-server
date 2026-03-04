@@ -1,15 +1,43 @@
-import asyncio
+import logging
+import time
+log = logging.getLogger('api')
+log.debug("Within embedder, Loading onnxruntime...")
+start = time.time()
+
 import onnxruntime as ort
 from onnxruntime import InferenceSession
 
-import lancedb
-from pydantic import TypeAdapter
+end = time.time()
+log.debug(f"Within embedder, Loading onnxruntime took {end - start} seconds")
 
+log.debug("Within embedder, Loading lancedb...")
+start = time.time()
+
+import lancedb
+
+end = time.time()
+log.debug(f"Within embedder, Loading lancedb took {end - start} seconds")
+
+log.debug("Within embedder, Loading other module stuff...")
+start = time.time()
+
+from pydantic import TypeAdapter
+import asyncio
 import numpy as np
 from numpy.typing import NDArray
 from typing import Coroutine
 
+end = time.time()
+log.debug(f"Within embedder, Loading other module stuff took {end - start} seconds")
+
+log.debug("Within embedder, Loading models models (again)...")
+start = time.time()
+
 from models import EmbedRecord, Cover
+
+end = time.time()
+log.debug(f"Within embedder, Loading models models (again) took {end - start} seconds")
+
 
 class Embedder:
     def __init__(self, model_path: str, db_uri: str):
@@ -82,8 +110,7 @@ class Embedder:
         self.table = await self.db.create_table(
                 self.table_name,
                 schema=Cover.to_arrow_schema(),
-                exist_ok=True, 
-                #mode="overwrite"
+                exist_ok=True,
             )
         id_stats = await self.table.index_stats(self.id_field)
         if not id_stats:

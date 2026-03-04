@@ -1,18 +1,44 @@
+import logging
+import time
+log = logging.getLogger('api')
+log.debug("Within processor, Loading async stuff...")
+start = time.time()
+
 import asyncio
 from asyncio import Task
 from aiohttp import ClientSession
 
+end = time.time()
+log.debug(f"Within processor, Loading async stuff took {end - start} seconds")
+
+log.debug("Within processor, Loading other module stuff...")
+start = time.time()
+
 from PIL import Image, ImageOps
 import io
 import numpy as np
-
 from pydantic import TypeAdapter
 from typing import Iterator, Coroutine, AsyncGenerator
-
 import os
 
+end = time.time()
+log.debug(f"Within processor, Loading other module stuff took {end - start} seconds")
+
+log.debug("Within processor, Loading models models...")
+start = time.time()
+
 from models import EmbedRecord, BatchFailures
+
+end = time.time()
+log.debug(f"Within processor, Loading models models took {end - start} seconds")
+
+log.debug("Within processor, Loading embedder...")
+start = time.time()
+
 from embedder import Embedder
+
+end = time.time()
+log.debug(f"Within processor, Loading embedder took {end - start} seconds")
 
 
 class ProcessError(Exception):
@@ -59,6 +85,7 @@ class EmbedProcessor:
 
             if processed_records:
                 await self.embedder.embed_records(processed_records, clip_task, db_task)
+                print("Finished embedding", len(processed_records), "records")
             else:
                 await clip_task
                 await db_task
