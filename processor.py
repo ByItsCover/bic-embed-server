@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import Task
 from aiohttp import ClientSession
 
 from PIL import Image, ImageOps
@@ -6,7 +7,7 @@ import io
 import numpy as np
 
 from pydantic import TypeAdapter
-from typing import Iterator, Coroutine
+from typing import Iterator, Coroutine, AsyncGenerator
 
 import os
 
@@ -41,18 +42,26 @@ class EmbedProcessor:
         records = self.records_adapter.validate_python(record_json)
 
         try:
-            http_task = self.load_http_session()
-            clip_task = self.embedder.load_clip()
-            db_task = self.embedder.load_db()
+            http_task = asyncio.create_task(self.load_http_session())
+            clip_task = asyncio.create_task(self.embedder.load_clip())
+            db_task = asyncio.create_task(self.embedder.load_db())
             
             await http_task
-            image_tasks = (self._fetch_raw_image(record) for record in records)
-            image_records = await self._process_failures(image_tasks, batch_failures.item_failures)
+            image_tasks = (asyncio.create_task(self._fetch_raw_image(record)) for record in records)
 
-            process_tasks = (asyncio.to_thread(self._preprocess, record) for record in image_records)
-            processed_records = await self._process_failures(process_tasks, batch_failures.item_failures)
+            process_tasks: list[Task[EmbedRecord]] = []
+            async for image_record in self._process_failures(image_tasks, batch_failures.item_failures):
+                process_tasks.append(asyncio.create_task(asyncio.to_thread(self._preprocess, image_record)))
+            
+            processed_records: list[EmbedRecord] = []
+            async for processed_record in self._process_failures(process_tasks, batch_failures.item_failures):
+                processed_records.append(processed_record)
 
-            await self.embedder.embed_records(processed_records, clip_task, db_task)
+            if processed_records:
+                await self.embedder.embed_records(processed_records, clip_task, db_task)
+            else:
+                await clip_task
+                await db_task
         except Exception as ex:
             print(f"Unable to process images due to {ex.__class__}.")
             print(ex)
@@ -64,9 +73,8 @@ class EmbedProcessor:
             self,
             tasks: Iterator[Coroutine[any, any, EmbedRecord]],
             failure_list: list[str]
-        ) -> list[EmbedRecord]:
+        ) -> AsyncGenerator[EmbedRecord]:
 
-        results: list[EmbedRecord] = []
         for coroutine in asyncio.as_completed(tasks):
             try:
                 record = await coroutine
@@ -75,9 +83,7 @@ class EmbedProcessor:
                 print(ex)
                 failure_list.append(ex.message_id)
             else:
-                results.append(record)
-        
-        return results
+                yield record
     
     def _preprocess(
             self,
