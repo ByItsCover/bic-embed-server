@@ -1,5 +1,4 @@
 locals {
-  ecr_repo        = data.terraform_remote_state.bic_infra.outputs.embed_server_ecr_name
   lambda_role_arn = data.terraform_remote_state.bic_infra.outputs.lambda_function_role_arn
   s3_db_uri       = data.terraform_remote_state.bic_infra.outputs.s3_db_uri
 }
