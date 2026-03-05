@@ -1,43 +1,23 @@
-import logging
-import time
-log = logging.getLogger('api')
-log.debug("Within embedder, Loading onnxruntime...")
-start = time.time()
-
 import onnxruntime as ort
 from onnxruntime import InferenceSession
 
-end = time.time()
-log.debug(f"Within embedder, Loading onnxruntime took {end - start} seconds")
-
-log.debug("Within embedder, Loading lancedb...")
-start = time.time()
-
 import lancedb
+from lancedb.pydantic import LanceModel, Vector
 
-end = time.time()
-log.debug(f"Within embedder, Loading lancedb took {end - start} seconds")
-
-log.debug("Within embedder, Loading other module stuff...")
-start = time.time()
-
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, Field
 import asyncio
 import numpy as np
 from numpy.typing import NDArray
 from typing import Coroutine
 
-end = time.time()
-log.debug(f"Within embedder, Loading other module stuff took {end - start} seconds")
+from models import EmbedRecord
 
-log.debug("Within embedder, Loading models models (again)...")
-start = time.time()
 
-from models import EmbedRecord, Cover
-
-end = time.time()
-log.debug(f"Within embedder, Loading models models (again) took {end - start} seconds")
-
+class Cover(LanceModel):
+    cover_id: int
+    isbn_13: str
+    cover_url: str = Field(alias='image_url')
+    embedding: Vector(512) #pyright: ignore[reportInvalidTypeForm]
 
 class Embedder:
     def __init__(self, model_path: str, db_uri: str):

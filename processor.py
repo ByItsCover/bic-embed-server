@@ -1,18 +1,8 @@
-import logging
-import time
-log = logging.getLogger('api')
-log.debug("Within processor, Loading async stuff...")
-start = time.time()
-
 import asyncio
 from asyncio import Task
 from aiohttp import ClientSession
 
-end = time.time()
-log.debug(f"Within processor, Loading async stuff took {end - start} seconds")
-
-log.debug("Within processor, Loading other module stuff...")
-start = time.time()
+import logging
 
 from PIL import Image, ImageOps
 import io
@@ -21,24 +11,9 @@ from pydantic import TypeAdapter
 from typing import Iterator, Coroutine, AsyncGenerator
 import os
 
-end = time.time()
-log.debug(f"Within processor, Loading other module stuff took {end - start} seconds")
-
-log.debug("Within processor, Loading models models...")
-start = time.time()
-
 from models import EmbedRecord, BatchFailures
 
-end = time.time()
-log.debug(f"Within processor, Loading models models took {end - start} seconds")
-
-log.debug("Within processor, Loading embedder...")
-start = time.time()
-
 from embedder import Embedder
-
-end = time.time()
-log.debug(f"Within processor, Loading embedder took {end - start} seconds")
 
 
 class ProcessError(Exception):
@@ -56,6 +31,7 @@ class EmbedProcessor:
         self.image_height = 224
         self.transform_mean = np.array([0.48145466, 0.4578275, 0.40821073])
         self.transform_std = np.array([0.26862954, 0.26130258, 0.27577711])
+        self.log = logging.getLogger('api')
     
     async def process_images(
             self,
@@ -63,8 +39,8 @@ class EmbedProcessor:
         ) -> BatchFailures:
 
         batch_failures = BatchFailures(batchItemFailures=[])
-        print("Record json:")
-        print(record_json)
+        self.log.debug("Record json:")
+        self.log.debug(record_json)
         records = self.records_adapter.validate_python(record_json)
 
         try:
@@ -85,13 +61,13 @@ class EmbedProcessor:
 
             if processed_records:
                 await self.embedder.embed_records(processed_records, clip_task, db_task)
-                print("Finished embedding", len(processed_records), "records")
+                self.log.info(f"Finished embedding {len(processed_records)} records")
             else:
                 await clip_task
                 await db_task
         except Exception as ex:
-            print(f"Unable to process images due to {ex.__class__}.")
-            print(ex)
+            self.log.warning(f"Unable to process images due to {ex.__class__}.")
+            self.log.warning(ex)
             batch_failures.item_failures = [record.message_id for record in records]
         finally:
             return batch_failures
@@ -106,8 +82,8 @@ class EmbedProcessor:
             try:
                 record = await coroutine
             except ProcessError as ex:
-                print(f"Got an exception: {ex.__class__}.")
-                print(ex)
+                self.log.warning(f"Got an exception: {ex.__class__}.")
+                self.log.warning(ex)
                 failure_list.append(ex.message_id)
             else:
                 yield record
