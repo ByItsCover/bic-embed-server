@@ -43,6 +43,12 @@ variable "lambda_timeout" {
   default     = 30
 }
 
+variable "log_level" {
+  type        = string
+  description = "Application log level for Lambda Function"
+  default     = "DEBUG"
+}
+
 # SQS
 
 variable "sqs_batch_size" {
