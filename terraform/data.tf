@@ -1,3 +1,8 @@
+locals {
+  ecr_repo = data.terraform_remote_state.bic_infra.outputs.embed_server_ecr_name
+}
+
+
 data "terraform_remote_state" "bic_infra" {
   backend = "remote"
 
