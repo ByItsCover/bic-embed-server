@@ -16,7 +16,7 @@ resource "aws_lambda_function" "embed_function" {
   role = local.lambda_role_arn
 
   logging_config {
-    log_format            = "JSON"
+    log_format            = "TEXT"
     application_log_level = var.log_level
     system_log_level      = "INFO"
   }

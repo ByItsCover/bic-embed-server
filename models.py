@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, AliasPath, ConfigDict
 from typing import Optional
 from numpy.typing import NDArray
 from PIL import Image
-from lancedb.pydantic import LanceModel, Vector
+
 
 class EmbedRecord(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -16,9 +16,3 @@ class EmbedRecord(BaseModel):
 
 class BatchFailures(BaseModel):
     item_failures: list[str] = Field(alias='batchItemFailures')
-
-class Cover(LanceModel):
-    cover_id: int
-    isbn_13: str
-    cover_url: str = Field(alias='image_url')
-    embedding: Vector(512) #pyright: ignore[reportInvalidTypeForm]
