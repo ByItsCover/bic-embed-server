@@ -6,9 +6,9 @@ from lancedb.pydantic import LanceModel, Vector
 
 from pydantic import TypeAdapter, Field
 import asyncio
-import numpy as np
 from numpy.typing import NDArray
 from typing import Coroutine
+import os
 
 from models import EmbedRecord
 
@@ -21,7 +21,7 @@ class Cover(LanceModel):
 
 class Embedder:
     def __init__(self, model_path: str, db_uri: str):
-        self.model_path = model_path
+        self.clip_path = os.path.join(model_path, "clip_quantized.onnx")
         self.clip_session = None
         self.session_opts = ort.SessionOptions()
         self.providers = ["CPUExecutionProvider"]
@@ -42,14 +42,13 @@ class Embedder:
             load_db_task: Coroutine[any, any, None]
         ):
 
-        images_list = [np.expand_dims(record.image_array, axis=0) for record in records]
-        images_array = np.concatenate(images_list, axis=0, dtype=np.float32)
+        images_list = [record.image_array for record in records]
 
         await clip_task
         embeddings = await asyncio.to_thread(
                 self.clip_session.run, 
                 None, 
-                {self.input_name: images_array}
+                {self.input_name: images_list}
             )
 
         processed_embeddings: list[NDArray] = embeddings[0].tolist()
@@ -77,7 +76,7 @@ class Embedder:
     
     def _load_clip_sync(self):
         self.clip_session = InferenceSession(
-                self.model_path, 
+                self.clip_path, 
                 self.session_opts,
                 providers=self.providers
             )
