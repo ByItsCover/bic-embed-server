@@ -13,16 +13,18 @@ from onnxruntime.quantization.shape_inference import quant_pre_process
 
 def hf_download(destination: str):
 
-    repo_id = "laion/CLIP-ViT-B-32-256x256-DataComp-s34B-b86K"
-    filename = "open_clip_model.safetensors"
+    repo_id = "laion/CLIP-ViT-B-32-laion2B-s34B-b79K"
+    filenames = ["open_clip_model.safetensors", "preprocessor_config.json"]
 
     os.makedirs(destination, exist_ok=True)
 
-    hf_hub_download(
-        repo_id=repo_id,
-        filename=filename,
-        local_dir=destination
-    )
+    for name in filenames:
+
+        hf_hub_download(
+            repo_id=repo_id,
+            filename=name,
+            local_dir=destination
+        )
 
     print(f"Model {repo_id} downloaded to {destination}/")
 
