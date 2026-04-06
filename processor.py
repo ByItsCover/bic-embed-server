@@ -102,7 +102,7 @@ class EmbedProcessor:
         if image_record.raw_image is None:
             raise ValueError(f"Image with url {image_record.image_url} was not retrieved")
 
-        image_record.image_array = processor(image_record.raw_image)['pixel_values'][0]
+        image_record.image_array = self.processor(image_record.raw_image)['pixel_values'][0]
         return image_record
     
     async def _fetch_raw_image(
