@@ -6,6 +6,7 @@ from lancedb.pydantic import LanceModel, Vector
 
 from pydantic import TypeAdapter, Field
 import asyncio
+import numpy as np
 from numpy.typing import NDArray
 from typing import Coroutine
 import os
@@ -56,7 +57,7 @@ class Embedder:
         for i in range(len(processed_embeddings)):
             cover = Cover(
                     **records[i].model_dump(), 
-                    embedding=processed_embeddings[i]
+                    embedding = processed_embeddings[i] / np.linalg.norm(processed_embeddings[i], axis=-1, keepdims=True)
                 )
             cover_list.append(cover)
         
