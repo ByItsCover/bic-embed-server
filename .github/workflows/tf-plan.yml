@@ -48,8 +48,7 @@ jobs:
       - name: Render Terraform Docs
         uses: terraform-docs/gh-actions@v1.4.1
         with:
-          working-dir: .
-          find-dir: terraform/
+          working-dir: ./terraform
           output-file: README.md
           output-method: inject
           git-push: "true"
