@@ -9,6 +9,7 @@ class EmbedRecord(BaseModel):
 
     message_id: str = Field(alias='messageId')
     cover_id: int = Field(validation_alias=AliasPath('messageAttributes', 'cover_id', 'stringValue'))
+    book_id: int = Field(validation_alias=AliasPath('messageAttributes', 'book_id', 'stringValue'))
     isbn_13: str = Field(validation_alias=AliasPath('messageAttributes', 'isbn_13', 'stringValue'))
     image_url: str = Field(alias='body')
     raw_image: Optional[Image.Image] = None
