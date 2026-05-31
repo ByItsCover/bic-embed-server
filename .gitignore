@@ -2,3 +2,4 @@ clipenv/
 clip_model/
 __pycache__/
 onnxruntime/
+.idea/

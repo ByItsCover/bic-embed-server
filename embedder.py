@@ -16,6 +16,7 @@ from models import EmbedRecord
 
 class Cover(LanceModel):
     cover_id: int
+    book_id: int
     isbn_13: str
     cover_url: str = Field(alias='image_url')
     embedding: Vector(512) #pyright: ignore[reportInvalidTypeForm]
