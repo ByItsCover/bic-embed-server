@@ -31,10 +31,6 @@ class EmbedProcessor:
         self.model_path = model_path
         self.embedder = Embedder(self.model_path, db_uri)
         self.processor = None
-        self.image_width = 224
-        self.image_height = 224
-        self.transform_mean = np.array([0.48145466, 0.4578275, 0.40821073])
-        self.transform_std = np.array([0.26862954, 0.26130258, 0.27577711])
         self.log = logging.getLogger('api')
     
     async def process_images(
