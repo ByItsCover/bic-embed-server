@@ -4,7 +4,7 @@ from aiohttp import ClientSession
 
 import logging
 
-from transformers import CLIPImageProcessor
+from transformers import CLIPImageProcessorPil
 
 from PIL import Image
 import io
@@ -67,11 +67,11 @@ class EmbedProcessor:
             else:
                 await clip_task
                 await db_task
+            return batch_failures
         except Exception as ex:
             self.log.warning(f"Unable to process images due to {ex.__class__}.")
             self.log.warning(ex)
             batch_failures.item_failures = [record.message_id for record in records]
-        finally:
             return batch_failures
     
     async def _process_failures(
@@ -128,7 +128,7 @@ class EmbedProcessor:
         await asyncio.to_thread(self._load_processor_sync)
     
     def _load_processor_sync(self):
-        self.processor = CLIPImageProcessor.from_pretrained(self.model_path)
+        self.processor = CLIPImageProcessorPil.from_pretrained(self.model_path)
 
 model_path = os.path.join(
         os.environ.get('ROOT_DIR', '.'),
