@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt --target ${FUNCTION_DIR}
 
 # Deploy Stage
 
-FROM python:${PYTHON_VERSION}-slim AS deploy
+FROM gcr.io/distroless/python3-debian13 AS deploy
 
 ARG FUNCTION_DIR
 
@@ -35,6 +35,6 @@ ENV ROOT_DIR=${FUNCTION_DIR}
 COPY --from=build ${FUNCTION_DIR} ${FUNCTION_DIR}
 COPY server.py processor.py embedder.py models.py ./
 
-ENTRYPOINT [ "python", "-m", "awslambdaric"]
+ENTRYPOINT [ "python3", "-m", "awslambdaric"]
 
 CMD [ "server.lambda_handler" ]
