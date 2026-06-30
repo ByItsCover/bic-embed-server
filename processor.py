@@ -8,7 +8,6 @@ from transformers import CLIPImageProcessorPil
 
 from PIL import Image
 import io
-import numpy as np
 from pydantic import TypeAdapter
 from typing import Iterator, Coroutine, AsyncGenerator
 import os
