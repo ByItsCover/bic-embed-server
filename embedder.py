@@ -2,6 +2,7 @@ import onnxruntime as ort
 from onnxruntime import InferenceSession
 
 import lancedb
+from lancedb.index import BTree
 from lancedb.pydantic import LanceModel, Vector
 
 from pydantic import TypeAdapter, Field
@@ -69,6 +70,9 @@ class Embedder:
             .when_not_matched_insert_all()
             .execute(self.covers_adapter.dump_python(cover_list))
         )
+
+        print("Table schema:")
+        print(self.table.head())
     
     async def load_clip(self):
         if self.clip_session is not None:
@@ -93,6 +97,6 @@ class Embedder:
                 schema=Cover.to_arrow_schema(),
                 exist_ok=True,
             )
-        id_stats = await self.table.index_stats(self.id_field)
+        id_stats = await self.table.index_stats(f"{self.id_field}_idx")
         if not id_stats:
-            await self.table.create_index(self.id_field)
+            await self.table.create_index(self.id_field, config=BTree(), name=f"{self.id_field}_idx")
