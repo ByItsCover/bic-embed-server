@@ -20,7 +20,8 @@ class Cover(LanceModel):
     book_id: int
     isbn_13: str
     cover_url: str = Field(alias='image_url')
-    embedding: Vector(512) #pyright: ignore[reportInvalidTypeForm]
+    cover_embedding: Vector(512) #pyright: ignore[reportInvalidTypeForm]
+    tower_embedding: Vector(64) #pyright: ignore[reportInvalidTypeForm]
 
 class Embedder:
     def __init__(self, model_path: str, db_uri: str):
@@ -59,7 +60,7 @@ class Embedder:
         for i in range(len(processed_embeddings)):
             cover = Cover(
                     **records[i].model_dump(), 
-                    embedding = processed_embeddings[i] / np.linalg.norm(processed_embeddings[i], axis=-1, keepdims=True)
+                    cover_embedding = processed_embeddings[i] / np.linalg.norm(processed_embeddings[i], axis=-1, keepdims=True)
                 )
             cover_list.append(cover)
         
