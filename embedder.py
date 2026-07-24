@@ -72,7 +72,8 @@ class Embedder:
         )
 
         print("Table schema:")
-        print(self.table.head())
+        head_res = await self.table.head()
+        print(head_res)
     
     async def load_clip(self):
         if self.clip_session is not None:
