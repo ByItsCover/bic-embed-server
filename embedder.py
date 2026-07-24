@@ -9,7 +9,7 @@ from pydantic import TypeAdapter, Field
 import asyncio
 import numpy as np
 from numpy.typing import NDArray
-from typing import Coroutine
+from typing import Coroutine, Optional
 import os
 
 from models import EmbedRecord
@@ -21,7 +21,7 @@ class Cover(LanceModel):
     isbn_13: str
     cover_url: str = Field(alias='image_url')
     cover_embedding: Vector(512) #pyright: ignore[reportInvalidTypeForm]
-    tower_embedding: Vector(64) #pyright: ignore[reportInvalidTypeForm]
+    tower_embedding: Optional[Vector(64)] = None #pyright: ignore[reportInvalidTypeForm]
 
 class Embedder:
     def __init__(self, model_path: str, db_uri: str):
