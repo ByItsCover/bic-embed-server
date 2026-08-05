@@ -21,7 +21,7 @@ class Cover(LanceModel):
     isbn_13: str
     cover_url: str = Field(alias='image_url')
     cover_embedding: Vector(512) #pyright: ignore[reportInvalidTypeForm]
-    tower_embedding: Optional[Vector(64)] = None #pyright: ignore[reportInvalidTypeForm]
+    tower_embedding: Optional[Vector(256)] = None #pyright: ignore[reportInvalidTypeForm]
 
 class Embedder:
     def __init__(self, model_path: str, db_uri: str):
