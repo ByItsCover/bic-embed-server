@@ -49,6 +49,12 @@ variable "log_level" {
   default     = "DEBUG"
 }
 
+variable "efs_path" {
+  type        = string
+  description = "File path for EFS attached to batch instance"
+  default     = "/mount/efs"
+}
+
 # SQS
 
 variable "sqs_batch_size" {
