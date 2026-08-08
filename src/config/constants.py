@@ -3,5 +3,6 @@ COVER_TABLE_NAME = "covers"
 CLIP_INPUT_NAME = "images"
 TOWER_ITEM_INPUT = "items"
 TOWER_ID_INPUT = "ids"
+COVER_ID_FIELD = "cover_id"
 TOWER_DIM = 128
 CLIP_DIM = 512
