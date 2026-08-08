@@ -38,7 +38,6 @@ def middleware_before(
 
 @lambda_handler_decorator
 def middleware_after(
-
         handler: Callable[[dict, LambdaContext], dict],
         event: dict,
         context: LambdaContext,
@@ -48,9 +47,8 @@ def middleware_after(
     execution_time = time.time() - start_time
 
     # adding custom headers in response object after lambda executing
-    response["headers"]["execution_time"] = execution_time
-    response["headers"]["aws_request_id"] = context.aws_request_id
     logger.info({"full_response": response})
+    logger.info({"execution_time": execution_time})
 
 
     return response
@@ -73,13 +71,11 @@ async def async_record_handler(record: SQSRecord, lambda_context: LambdaContext)
 @middleware_before
 @middleware_after
 def lambda_handler(event, context: LambdaContext):
-    response = async_process_partial_response(
-        event=event,
-        record_handler=async_record_handler,
-        processor=processor,
-        context=context,
-    )
-    logger.info({"successful": processor.success_messages})
-    logger.info({"failed": processor.fail_messages})
+    records = event["Records"]
+    with processor(records, async_record_handler, context):
+        processed_messages = processor.async_process()
 
-    return response
+    for message in processed_messages:
+        logger.info(message)
+
+    return processor.response()
