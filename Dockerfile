@@ -33,8 +33,8 @@ WORKDIR ${FUNCTION_DIR}
 ENV ROOT_DIR=${FUNCTION_DIR}
 
 COPY --from=build ${FUNCTION_DIR} ${FUNCTION_DIR}
-COPY server.py processor.py embedder.py models.py ./
+COPY ./src ./
 
 ENTRYPOINT [ "python3", "-m", "awslambdaric"]
 
-CMD [ "server.lambda_handler" ]
+CMD [ "main.lambda_handler" ]

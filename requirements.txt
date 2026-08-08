@@ -5,6 +5,7 @@ numpy
 pillow
 
 # AWS Lambda
+aws-lambda-powertools
 lancedb
 pydantic
 aiohttp
