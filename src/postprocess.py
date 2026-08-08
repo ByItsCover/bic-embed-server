@@ -35,7 +35,7 @@ async def process_content(records: list[EmbedRecord], lambda_context: LambdaCont
     clip_embeddings = await asyncio.to_thread(
         clip_vis.run,
         None,
-        {CLIP_INPUT_NAME: np.vstack(images_list)}
+        {CLIP_INPUT_NAME: np.stack(images_list)}
     )
     clip_embeds_processed: list[NDArray] = [
         normalize(embed) for embed in clip_embeddings[0].tolist()
@@ -47,7 +47,7 @@ async def process_content(records: list[EmbedRecord], lambda_context: LambdaCont
         item_tower.run,
         None,
         {
-            TOWER_ITEM_INPUT: np.vstack(clip_embeds_processed),
+            TOWER_ITEM_INPUT: np.stack(clip_embeds_processed),
             TOWER_ID_INPUT: np.array(id_list)
         }
     )
