@@ -16,11 +16,10 @@ ARG FUNCTION_DIR
 
 RUN mkdir -p ${FUNCTION_DIR}
 
-#COPY download_model.py build_requirements.txt requirements.txt ./
-COPY requirements.txt ./
+COPY download_model.py build_requirements.txt requirements.txt ./
 
-#RUN pip install --no-cache-dir -r build_requirements.txt
-#RUN python download_model.py ${FUNCTION_DIR}
+RUN pip install --no-cache-dir -r build_requirements.txt
+RUN python download_model.py ${FUNCTION_DIR}
 RUN pip install --no-cache-dir awslambdaric --target ${FUNCTION_DIR}
 RUN pip install --no-cache-dir -r requirements.txt --target ${FUNCTION_DIR}
 

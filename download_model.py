@@ -43,19 +43,19 @@ def quantized_download(
         ),
         "onnx_model_path": os.path.join(
             destination,
-            "clip.onnx"
+            "clip_vis.onnx"
         ),
         "onnx_model_shapes_path": os.path.join(
             destination,
-            "clip_shapes.onnx"
+            "clip_vis_shapes.onnx"
         ),
         "quant_pre_model_path": os.path.join(
             destination,
-            "clip_pre_quantized.onnx"
+            "clip_vis_pre_quantized.onnx"
         ),
         "quant_model_path": os.path.join(
             destination,
-            "clip_quantized.onnx"
+            "clip_vis_quantized.onnx"
         ),
         "preprocess_path": os.path.join(
             destination,
@@ -93,36 +93,15 @@ def quantized_download(
                   )
 
 
-    print("Quantizing model...")
-    
-    model = onnx.load(script_state["onnx_model_path"])
-    model = onnx.shape_inference.infer_shapes(model)
-    onnx.save(model, script_state["onnx_model_shapes_path"])
-
-    quant_pre_process(script_state["onnx_model_shapes_path"],
-        script_state["quant_pre_model_path"],
-        skip_optimization=False,
-        skip_symbolic_shape=True,
-        verbose=3)
-
-    quantize_dynamic(script_state["quant_pre_model_path"],
-                                   script_state["quant_model_path"],
-                                   weight_type=QuantType.QUInt8)
-
-
     if clean_cache:
         print("Cleaning up...")
         os.remove(script_state["pretrained_name"])
-    
-    os.remove(script_state["onnx_model_path"])
-    os.remove(script_state["onnx_model_shapes_path"])
-    os.remove(script_state["quant_pre_model_path"])
 
     if os.path.isfile(script_state["onnx_model_path"] + '.data'):
         os.remove(script_state["onnx_model_path"] + '.data')
 
 
-    print(f"Model {script_state["pretrained_name"]} quantized to {destination}/")
+    print(f"Model {script_state["pretrained_name"]} onnx exported to {destination}/")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
