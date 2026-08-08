@@ -14,11 +14,11 @@ class S3Record(BaseModel):
 class EmbedRecord(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    message_id: str = Field(alias='messageId')
-    cover_id: int = Field(alias='x-amz-meta-cover_id')
-    book_id: int = Field(alias='x-amz-meta-book_id')
-    isbn_13: str = Field(alias='x-amz-meta-isbn_13')
-    cover_url: str = Field(alias='x-amz-meta-image_url')
+    message_id: str
+    cover_id: int
+    book_id: int
+    isbn_13: str
+    cover_url: str = Field(alias='image_url')
     image_array: Optional[NDArray] = None
 
 class Cover(LanceModel):
