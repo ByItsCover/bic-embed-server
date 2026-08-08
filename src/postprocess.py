@@ -63,9 +63,12 @@ async def process_content(records: list[EmbedRecord], lambda_context: LambdaCont
         )
         for i in range(len(records))
     ]
+    logger.info({"cover_list": cover_list})
 
     covers_adapter = TypeAdapter(list[Cover])
     cover_table = await cover_table_task
+    logger.info({"cover_table": cover_table})
+    
     table_res = await (
         cover_table.merge_insert(COVER_ID_FIELD)
         .when_matched_update_all()
