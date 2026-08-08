@@ -36,7 +36,7 @@ resource "aws_lambda_function" "embed_function" {
     variables = {
       ENVIRONMENT    = var.environment
       DB_URI         = local.s3_db_uri
-      MODEL_ROOT_DIR = var.efs_path
+      TOWER_ROOT_DIR = var.efs_path
     }
   }
 }
