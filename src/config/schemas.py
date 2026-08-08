@@ -15,11 +15,10 @@ class EmbedRecord(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     message_id: str = Field(alias='messageId')
-    cover_id: int = Field(validation_alias=AliasPath('messageAttributes', 'cover_id', 'stringValue'))
-    book_id: int = Field(validation_alias=AliasPath('messageAttributes', 'book_id', 'stringValue'))
-    isbn_13: str = Field(validation_alias=AliasPath('messageAttributes', 'isbn_13', 'stringValue'))
-    cover_url: str = Field(validation_alias=AliasPath('messageAttributes', 'image_url', 'stringValue'))
-    image_b64: str = Field(alias='body')
+    cover_id: int = Field(alias='x-amz-meta-cover_id')
+    book_id: int = Field(alias='x-amz-meta-book_id')
+    isbn_13: str = Field(alias='x-amz-meta-isbn_13')
+    cover_url: str = Field(alias='x-amz-meta-image_url')
     image_array: Optional[NDArray] = None
 
 class Cover(LanceModel):
