@@ -1,4 +1,3 @@
-import asyncio
 from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools import Logger
@@ -20,7 +19,7 @@ def model_middleware(
         event: dict,
         context: LambdaContext,
 ) -> dict:
-    ensure_loop()
+    loop = ensure_loop()
 
     efs_dir = os.environ.get('TOWER_ROOT_DIR', '.')
     item_tower_path = os.path.join(efs_dir, "item_tower.onnx")
@@ -33,9 +32,9 @@ def model_middleware(
     session_opts = SessionOptions()
     providers = ["CPUExecutionProvider"]
 
-    item_tower_task = asyncio.create_task(get_model(item_tower_path, session_opts, providers))
-    clip_vis_task = asyncio.create_task(get_model(clip_path, session_opts, providers))
-    processor_task = asyncio.create_task(get_processor(clip_dir))
+    item_tower_task = loop.create_task(get_model(item_tower_path, session_opts, providers))
+    clip_vis_task = loop.create_task(get_model(clip_path, session_opts, providers))
+    processor_task = loop.create_task(get_processor(clip_dir))
 
     setattr(context, "item_tower_task", item_tower_task)
     setattr(context, "clip_vis_task", clip_vis_task)
@@ -49,9 +48,9 @@ def lance_middleware(
         event: dict,
         context: LambdaContext,
 ) -> dict:
-    ensure_loop()
-    
-    cover_table_task = asyncio.create_task(get_cover_table(os.environ["DB_URI"]))
+    loop = ensure_loop()
+
+    cover_table_task = loop.create_task(get_cover_table(os.environ["DB_URI"]))
 
     setattr(context, "cover_table_task", cover_table_task)
 
