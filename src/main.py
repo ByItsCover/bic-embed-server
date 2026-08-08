@@ -8,6 +8,7 @@ from aws_lambda_powertools.utilities.batch import (
 from aws_lambda_powertools.utilities.data_classes.sqs_event import SQSRecord
 from aws_lambda_powertools.utilities.typing import LambdaContext
 import os
+import time
 from typing import Callable
 
 class LeMickey:
@@ -34,6 +35,26 @@ def middleware_before(
 
     return handler(event, context)
 
+
+@lambda_handler_decorator
+def middleware_after(
+
+        handler: Callable[[dict, LambdaContext], dict],
+        event: dict,
+        context: LambdaContext,
+) -> dict:
+    start_time = time.time()
+    response = handler(event, context)
+    execution_time = time.time() - start_time
+
+    # adding custom headers in response object after lambda executing
+    response["headers"]["execution_time"] = execution_time
+    response["headers"]["aws_request_id"] = context.aws_request_id
+    logger.info({"full_response": response})
+
+
+    return response
+
 async def async_record_handler(record: SQSRecord, lambda_context: LambdaContext):
     logger.info(lambda_context)
     logger.info(f"Record: {record}")
@@ -47,12 +68,18 @@ async def async_record_handler(record: SQSRecord, lambda_context: LambdaContext)
 
     cool_thing: LeMickey = getattr(lambda_context, "cool_thing")
     logger.info({"cool_thing": cool_thing.call_stuff()})
+    return 8
 
 @middleware_before
+@middleware_after
 def lambda_handler(event, context: LambdaContext):
-    return async_process_partial_response(
+    response = async_process_partial_response(
         event=event,
         record_handler=async_record_handler,
         processor=processor,
         context=context,
     )
+    logger.info({"successful": processor.success_messages})
+    logger.info({"failed": processor.fail_messages})
+
+    return response
