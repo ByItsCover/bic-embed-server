@@ -5,7 +5,8 @@ import os
 from typing import Callable
 from utils.loop import ensure_loop
 from utils.models import get_model, get_processor
-from utils.db_tables import get_cover_table
+from utils.lance import get_cover_table
+from utils.s3 import get_bucket
 from config.constants import CLIP_FOLDER
 
 
@@ -49,5 +50,19 @@ def lance_middleware(
     cover_table_task = loop.create_task(get_cover_table(os.environ["DB_URI"]))
 
     setattr(context, "cover_table_task", cover_table_task)
+
+    return handler(event, context)
+
+@lambda_handler_decorator
+def s3_middleware(
+        handler: Callable[[dict, LambdaContext], dict],
+        event: dict,
+        context: LambdaContext,
+) -> dict:
+    loop = ensure_loop()
+
+    cover_dump_task = loop.create_task(get_bucket(os.environ["BUCKET_NAME"]))
+
+    setattr(context, "cover_dump_task", cover_dump_task)
 
     return handler(event, context)
