@@ -52,7 +52,7 @@ variable "log_level" {
 variable "efs_path" {
   type        = string
   description = "File path for EFS attached to batch instance"
-  default     = "/mount/efs"
+  default     = "/mnt/data"
 }
 
 # SQS
