@@ -1,20 +1,26 @@
+import asyncio
 from aws_lambda_powertools.utilities.data_classes.sqs_event import SQSRecord
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools import Logger
-from pydantic import BaseModel, Field, AliasPath, ConfigDict
+from config.schemas import ImageRecord, ProcessError
+
+from aiohttp import ClientSession
+from PIL import Image
+from PIL.ImageFile import ImageFile
+import io
 
 logger = Logger()
 
 
-class ImageRecord(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    message_id: str
-    cover_id: int = Field(validation_alias=AliasPath('message_attributes', 'cover_id', 'string_value'))
-    book_id: int = Field(validation_alias=AliasPath('message_attributes', 'book_id', 'string_value'))
-    isbn_13: str = Field(validation_alias=AliasPath('message_attributes', 'isbn_13', 'string_value'))
-    image_url: str = Field(alias='body')
-
+async def fetch_raw_image(record: ImageRecord, http_session: ClientSession) -> ImageFile:
+    try:
+        async with http_session.get(url=record.image_url) as response:
+            res = await response.read()
+            image = Image.open(io.BytesIO(res))
+    except Exception as ex:
+        raise ProcessError(record.message_id, message=str(ex))
+    else:
+        return image
 
 async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
     logger.info(lambda_context)
@@ -24,6 +30,10 @@ async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
 
     image_record = ImageRecord.model_validate(record)
     logger.info({"mapped_image_record": image_record})
+
+    http_session: ClientSession = getattr(lambda_context, "http_session")
+    raw_image_task = asyncio.create_task(fetch_raw_image(image_record, http_session))
+    logger.info({"raw_image": await raw_image_task})
 
     # efs_dir = os.environ.get('MODEL_ROOT_DIR', '.')
     # print("EFS dir:", efs_dir)
