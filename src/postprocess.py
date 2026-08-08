@@ -7,7 +7,6 @@ from lancedb import AsyncTable
 import numpy as np
 from numpy.typing import NDArray
 from pydantic import TypeAdapter
-from utils.loop import ensure_loop
 from utils.db_tables import Cover
 from utils.array_ops import normalize
 from config.schemas import EmbedRecord
@@ -18,8 +17,6 @@ logger = Logger()
 
 
 async def process_content(records: list[EmbedRecord], lambda_context: LambdaContext):
-    loop = ensure_loop()
-
     logger.info(lambda_context)
     logger.info({"items": records})
 
@@ -33,7 +30,7 @@ async def process_content(records: list[EmbedRecord], lambda_context: LambdaCont
         images_list.append(record.image_array)
         id_list.append(record.cover_id)
 
-    clip_vis = loop.run_until_complete(clip_vis_task)
+    clip_vis = await clip_vis_task
     logger.info({"clip_vis": clip_vis})
     clip_embeddings = await asyncio.to_thread(
         clip_vis.run,
@@ -44,7 +41,7 @@ async def process_content(records: list[EmbedRecord], lambda_context: LambdaCont
         normalize(embed) for embed in clip_embeddings[0].tolist()
     ]
 
-    item_tower = loop.run_until_complete(item_tower_task)
+    item_tower = await item_tower_task
     logger.info({"item_tower": item_tower})
     tower_embeddings = await asyncio.to_thread(
         item_tower.run,
@@ -68,7 +65,7 @@ async def process_content(records: list[EmbedRecord], lambda_context: LambdaCont
     ]
 
     covers_adapter = TypeAdapter(list[Cover])
-    cover_table = loop.run_until_complete(cover_table_task)
+    cover_table = await cover_table_task
     table_res = await (
         cover_table.merge_insert(COVER_ID_FIELD)
         .when_matched_update_all()
