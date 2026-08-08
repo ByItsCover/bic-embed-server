@@ -8,4 +8,3 @@ pillow
 aws-lambda-powertools
 lancedb
 pydantic
-aiohttp

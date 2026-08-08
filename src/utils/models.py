@@ -10,7 +10,7 @@ async def get_model(
         model_path: str, session_options: SessionOptions, providers: list[str]
 ) -> InferenceSession:
     model = await asyncio.to_thread(get_model_sync, model_path, session_options, providers)
-    logger.info("Model loaded. Just checking if async worked")
+    logger.info(f"{model_path} model load complete")
     return model
 
 def get_model_sync(
@@ -24,7 +24,7 @@ def get_model_sync(
 
 async def get_processor(processor_dir: str) -> CLIPImageProcessorPil:
     processor = await asyncio.to_thread(get_processor_sync, processor_dir)
-    logger.info("Processor loaded. Just checking if async worked")
+    logger.info("Processor load complete")
     return processor
 
 def get_processor_sync(processor_dir: str) -> CLIPImageProcessorPil:

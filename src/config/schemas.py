@@ -1,6 +1,8 @@
+from lancedb.pydantic import LanceModel, Vector
 from pydantic import BaseModel, Field, AliasPath, ConfigDict
-from typing import Optional
 from numpy.typing import NDArray
+from typing import Optional
+from config.constants import TOWER_DIM, CLIP_DIM
 
 
 class EmbedRecord(BaseModel):
@@ -13,6 +15,14 @@ class EmbedRecord(BaseModel):
     cover_url: str = Field(validation_alias=AliasPath('messageAttributes', 'image_url', 'stringValue'))
     image_b64: str = Field(alias='body')
     image_array: Optional[NDArray] = None
+
+class Cover(LanceModel):
+    cover_id: int
+    book_id: int
+    isbn_13: str
+    cover_url: str
+    cover_embedding: Vector(CLIP_DIM)  # type: ignore[PyTypeChecker]
+    tower_embedding: Optional[Vector(TOWER_DIM)] = None  # type: ignore[PyTypeChecker]
 
 class ProcessError(Exception):
     def __init__(self, message_id: str, message: str):

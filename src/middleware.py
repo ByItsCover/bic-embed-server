@@ -1,6 +1,5 @@
 from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from aws_lambda_powertools import Logger
 from onnxruntime import SessionOptions
 import os
 from typing import Callable
@@ -8,8 +7,6 @@ from utils.loop import ensure_loop
 from utils.models import get_model, get_processor
 from utils.db_tables import get_cover_table
 from config.constants import CLIP_FOLDER
-
-logger = Logger()
 
 
 @lambda_handler_decorator
@@ -26,7 +23,7 @@ def model_middleware(
         os.environ.get('CLIP_ROOT_DIR', '.'),
         CLIP_FOLDER
     )
-    clip_path = os.path.join(clip_dir, "clip_vis_quantized.onnx")
+    clip_path = os.path.join(clip_dir, "clip_vis.onnx")
 
     session_opts = SessionOptions()
     providers = ["CPUExecutionProvider"]
