@@ -7,9 +7,8 @@ from lancedb import AsyncTable
 import numpy as np
 from numpy.typing import NDArray
 from pydantic import TypeAdapter
-from utils.db_tables import Cover
 from utils.array_ops import normalize
-from config.schemas import EmbedRecord
+from config.schemas import EmbedRecord, Cover
 from config.constants import (CLIP_INPUT_NAME, TOWER_ITEM_INPUT,
                               TOWER_ID_INPUT, COVER_ID_FIELD)
 
@@ -18,7 +17,7 @@ logger = Logger()
 
 async def process_content(records: list[EmbedRecord], lambda_context: LambdaContext):
     logger.info(lambda_context)
-    logger.info({"items": records})
+    logger.info({"items_count": len(records)})
 
     item_tower_task: Task[InferenceSession] = getattr(lambda_context, "item_tower_task")
     clip_vis_task: Task[InferenceSession] = getattr(lambda_context, "clip_vis_task")
@@ -68,7 +67,7 @@ async def process_content(records: list[EmbedRecord], lambda_context: LambdaCont
     covers_adapter = TypeAdapter(list[Cover])
     cover_table = await cover_table_task
     logger.info({"cover_table": cover_table})
-    
+
     table_res = await (
         cover_table.merge_insert(COVER_ID_FIELD)
         .when_matched_update_all()
