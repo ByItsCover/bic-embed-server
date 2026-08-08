@@ -1,0 +1,4 @@
+CLIP_FOLDER = "clip_model"
+COVER_TABLE_NAME = "covers"
+TOWER_DIM = 128
+CLIP_DIM = 512
