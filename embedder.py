@@ -13,6 +13,7 @@ from typing import Coroutine, Optional
 import os
 
 from models import EmbedRecord
+from constants import TOWER_DIM, CLIP_DIM
 
 
 class Cover(LanceModel):
@@ -20,8 +21,8 @@ class Cover(LanceModel):
     book_id: int
     isbn_13: str
     cover_url: str = Field(alias='image_url')
-    cover_embedding: Vector(512) #pyright: ignore[reportInvalidTypeForm]
-    tower_embedding: Optional[Vector(256)] = None #pyright: ignore[reportInvalidTypeForm]
+    cover_embedding: Vector(CLIP_DIM) #pyright: ignore[reportInvalidTypeForm]
+    tower_embedding: Optional[Vector(TOWER_DIM)] = None #pyright: ignore[reportInvalidTypeForm]
 
 class Embedder:
     def __init__(self, model_path: str, db_uri: str):
