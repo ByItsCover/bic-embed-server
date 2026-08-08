@@ -7,6 +7,7 @@ from aws_lambda_powertools.utilities.batch import (
 )
 from aws_lambda_powertools.utilities.data_classes.sqs_event import SQSRecord
 from aws_lambda_powertools.utilities.typing import LambdaContext
+import os
 from typing import Callable
 
 class LeMickey:
@@ -34,14 +35,20 @@ def middleware_before(
     return handler(event, context)
 
 async def async_record_handler(record: SQSRecord, lambda_context: LambdaContext):
-    logger.info(record.json_body)
-    logger.info(record.body)
     logger.info(lambda_context)
     logger.info(f"Record: {record}")
+    logger.info(record)
+    logger.info(record.body)
+
+    efs_dir = os.environ.get('MODEL_ROOT_DIR', '.')
+    print("EFS dir:", efs_dir)
+    files = os.listdir(efs_dir)
+    logger.info(files)
 
     cool_thing: LeMickey = getattr(lambda_context, "cool_thing")
     logger.info({"cool_thing": cool_thing.call_stuff()})
 
+@middleware_before
 def lambda_handler(event, context: LambdaContext):
     return async_process_partial_response(
         event=event,
