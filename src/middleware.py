@@ -6,16 +6,12 @@ from onnxruntime import SessionOptions
 from aiohttp import ClientSession
 import os
 from typing import Callable
+from utils.loop import ensure_loop
 from utils.models import get_model, get_processor
 from utils.db_tables import get_cover_table
 from config.constants import CLIP_FOLDER
 
 logger = Logger()
-try:
-    loop = asyncio.get_event_loop()
-except RuntimeError:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
 
 
 @lambda_handler_decorator
@@ -24,6 +20,8 @@ def model_middleware(
         event: dict,
         context: LambdaContext,
 ) -> dict:
+    ensure_loop()
+
     efs_dir = os.environ.get('TOWER_ROOT_DIR', '.')
     item_tower_path = os.path.join(efs_dir, "item_tower.onnx")
     clip_dir = os.path.join(
@@ -51,6 +49,8 @@ def lance_middleware(
         event: dict,
         context: LambdaContext,
 ) -> dict:
+    ensure_loop()
+    
     cover_table_task = asyncio.create_task(get_cover_table(os.environ["DB_URI"]))
 
     setattr(context, "cover_table_task", cover_table_task)
