@@ -26,7 +26,7 @@ def lambda_handler(event, context: LambdaContext):
     items: list[EmbedRecord] = []
     for status, result, record in processed_messages:
         logger.info(result)
-        items.append(result)
+        items += result
 
     loop.run_until_complete(process_content(items, context))
     return processor.response()
