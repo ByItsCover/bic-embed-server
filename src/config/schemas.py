@@ -5,6 +5,12 @@ from typing import Optional
 from config.constants import TOWER_DIM, CLIP_DIM
 
 
+class S3Record(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    bucket_name: str = Field(validation_alias=AliasPath('s3', 'bucket', 'name'))
+    key: str = Field(validation_alias=AliasPath('s3', 'object', 'key'))
+
 class EmbedRecord(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 

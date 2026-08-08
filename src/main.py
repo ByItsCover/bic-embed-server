@@ -22,10 +22,10 @@ def lambda_handler(event, context: LambdaContext):
     with processor(records, record_handler, context):
         processed_messages = processor.async_process()
 
-    items: list[EmbedRecord] = []
+    items: list[int] = []
     for status, result, record in processed_messages:
         logger.info(result)
         items.append(result)
 
-    loop.run_until_complete(process_content(items, context))
+    #loop.run_until_complete(process_content(items, context))
     return processor.response()

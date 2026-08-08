@@ -6,5 +6,7 @@ pillow
 
 # AWS Lambda
 aws-lambda-powertools
+aioboto3
+types-aioboto3[s3]
 lancedb
 pydantic

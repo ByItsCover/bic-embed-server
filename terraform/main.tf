@@ -3,6 +3,7 @@ locals {
   s3_db_uri          = data.terraform_remote_state.bic_infra.outputs.s3_db_uri
   rec_efs_access_arn = data.terraform_remote_state.bic_infra.outputs.rec_efs_access_arn
   lambda_sg_id       = data.terraform_remote_state.bic_infra.outputs.lambda_sg_id
+  cover_dump_name    = data.terraform_remote_state.bic_infra.outputs.s3_cover_dump_name
 }
 
 
@@ -37,6 +38,7 @@ resource "aws_lambda_function" "embed_function" {
       ENVIRONMENT    = var.environment
       DB_URI         = local.s3_db_uri
       TOWER_ROOT_DIR = var.efs_path
+      BUCKET_NAME    = local.cover_dump_name
     }
   }
 }
