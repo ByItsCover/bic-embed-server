@@ -2,13 +2,11 @@ from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools import Logger
 from onnxruntime import SessionOptions
-from aiohttp import ClientSession
 import os
 from typing import Callable
 from utils.loop import ensure_loop
 from utils.models import get_model, get_processor
 from utils.db_tables import get_cover_table
-from utils.http import get_http_session
 from config.constants import CLIP_FOLDER
 
 logger = Logger()
@@ -54,19 +52,5 @@ def lance_middleware(
     cover_table_task = loop.create_task(get_cover_table(os.environ["DB_URI"]))
 
     setattr(context, "cover_table_task", cover_table_task)
-
-    return handler(event, context)
-
-@lambda_handler_decorator
-def http_middleware(
-        handler: Callable[[dict, LambdaContext], dict],
-        event: dict,
-        context: LambdaContext,
-) -> dict:
-    loop = ensure_loop()
-
-    http_session_task = loop.create_task(get_http_session())
-
-    setattr(context, "http_session_task", http_session_task)
 
     return handler(event, context)

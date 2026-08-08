@@ -30,6 +30,5 @@ async def get_cover_table(db_uri: str) -> AsyncTable:
     if not id_stats:
         await cover_table.create_index("cover_id", config=BTree(), name="cover_id_idx")
 
-
     logger.info("Cover table loaded")
     return cover_table
