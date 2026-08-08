@@ -1,4 +1,3 @@
-import asyncio
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.batch import (
     AsyncBatchProcessor,
@@ -29,8 +28,5 @@ def lambda_handler(event, context: LambdaContext):
         logger.info(result)
         items.append(result)
 
-    asyncio.run_coroutine_threadsafe(process_content(items, context), loop)
-
-    # noinspection PyTypeChecker
-    loop.call_soon_threadsafe(loop.stop)
+    loop.run_until_complete(process_content(items, context))
     return processor.response()
