@@ -21,13 +21,13 @@ async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
     processor_task: Task[CLIPImageProcessorPil] = getattr(lambda_context, "clip_processor_task")
 
     image_record = EmbedRecord.model_validate(record)
-    logger.info({"mapped_image_record": image_record})
+    logger.info("Mapped image record")
 
     raw_image = Image.open(BytesIO(base64.b64decode(image_record.image_b64.encode('utf-8'))))
     logger.info({"raw_image": raw_image})
 
     processor = await processor_task
     image_arr: NDArray = processor(raw_image)["pixel_values"]
-    logger.info({"image_arr_shape": image_arr.shape})
+    logger.info({"image_arr": image_arr})
     image_record.image_array = image_arr
     return image_record
