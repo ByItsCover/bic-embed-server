@@ -18,6 +18,7 @@ logger = Logger()
 async def fetch_raw_image(record: EmbedRecord, http_session: ClientSession) -> ImageFile:
     try:
         async with http_session.get(url=record.image_url) as response:
+            logger.info({"status": response.status})
             res = await response.read()
             image = Image.open(io.BytesIO(res))
     except Exception as ex:
@@ -38,7 +39,7 @@ async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
     logger.info({"mapped_image_record": image_record})
 
     http_session = await http_session_task
-    raw_image_task = asyncio.create_task(fetch_raw_image(image_record, http_session))
+    raw_image_task = fetch_raw_image(image_record, http_session)
     raw_image = await raw_image_task
     logger.info({"raw_image": raw_image})
 

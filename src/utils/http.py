@@ -1,6 +1,7 @@
 import asyncio
 from aws_lambda_powertools import Logger
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
+from config.constants import FETCH_TIMEOUT
 
 logger = Logger()
 
@@ -12,4 +13,5 @@ async def get_http_session() -> ClientSession:
     return http_session
 
 def get_http_session_sync() -> ClientSession:
-    return ClientSession()
+    timeout = ClientTimeout(FETCH_TIMEOUT)
+    return ClientSession(timeout=timeout)
