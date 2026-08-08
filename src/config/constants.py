@@ -1,4 +1,5 @@
 CLIP_FOLDER = "clip_model"
 COVER_TABLE_NAME = "covers"
+CLIP_INPUT_NAME = "images"
 TOWER_DIM = 128
 CLIP_DIM = 512
