@@ -29,4 +29,7 @@ def lambda_handler(event, context: LambdaContext):
         items.append(result)
 
     loop.run_until_complete(embed_content(items, context))
+
+    # noinspection PyTypeChecker
+    loop.call_soon_threadsafe(loop.stop)
     return processor.response()
