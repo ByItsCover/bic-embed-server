@@ -6,7 +6,6 @@ from aws_lambda_powertools import Logger
 from transformers import CLIPImageProcessorPil
 from pydantic import TypeAdapter
 from types_aiobotocore_s3.service_resource import Bucket
-import base64
 from PIL import Image
 from io import BytesIO
 from numpy.typing import NDArray
@@ -20,6 +19,9 @@ logger = Logger()
 async def build_record(message_id: str, metadata_task: Awaitable[dict[str, str]]):
     metadata = await metadata_task
     logger.info({"metadata": metadata})
+    record = EmbedRecord(**metadata, messageId=message_id)
+    logger.info({"parsed_record": record})
+    return record
 
 async def fetch_cover(message_id: str, s3_record: S3Record, bucket: Bucket, processor_task: Task[CLIPImageProcessorPil]):
     if s3_record.bucket_name != bucket.name:
@@ -39,8 +41,9 @@ async def fetch_cover(message_id: str, s3_record: S3Record, bucket: Bucket, proc
     image_arr: NDArray = processor(raw_image)["pixel_values"][0]
     logger.info({"image_arr": image_arr})
 
-    await record_task
-    return 2
+    record = await record_task
+    record.image_array = image_arr
+    return record
 
 async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
     logger.info(lambda_context)
@@ -59,5 +62,5 @@ async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
         for s3_rec in s3_records
     ]
 
-    res = await asyncio.gather(*cover_tasks)
-    return res
+    records: list[EmbedRecord] = await asyncio.gather(*cover_tasks)
+    return records
