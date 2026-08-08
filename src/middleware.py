@@ -8,6 +8,7 @@ from typing import Callable
 from utils.loop import ensure_loop
 from utils.models import get_model, get_processor
 from utils.db_tables import get_cover_table
+from utils.http import get_http_session
 from config.constants import CLIP_FOLDER
 
 logger = Logger()
@@ -62,8 +63,10 @@ def http_middleware(
         event: dict,
         context: LambdaContext,
 ) -> dict:
-    http_session = ClientSession()
+    loop = ensure_loop()
 
-    setattr(context, "http_session", http_session)
+    http_session_task = loop.create_task(get_http_session())
+
+    setattr(context, "http_session_task", http_session_task)
 
     return handler(event, context)

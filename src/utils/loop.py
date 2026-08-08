@@ -1,6 +1,5 @@
 import asyncio
 from asyncio import AbstractEventLoop
-import threading
 
 
 def ensure_loop() -> AbstractEventLoop:
@@ -9,9 +8,5 @@ def ensure_loop() -> AbstractEventLoop:
     except RuntimeError:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-
-    if not loop.is_running():
-        t = threading.Thread(target=loop.run_forever)
-        t.start()
 
     return loop
