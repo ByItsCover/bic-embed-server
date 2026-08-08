@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 logger = Logger()
 
 
-async def embed_content(items: list[NDArray], lambda_context: LambdaContext):
+async def process_content(items: list[NDArray], lambda_context: LambdaContext):
     logger.info(lambda_context)
     logger.info({"items": items})
 

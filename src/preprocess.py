@@ -31,12 +31,13 @@ async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
     logger.info(record)
     logger.info(record.body)
 
-    http_session: ClientSession = getattr(lambda_context, "http_session")
+    http_session_task: Task[ClientSession] = getattr(lambda_context, "http_session_task")
     processor_task: Task[CLIPImageProcessorPil] = getattr(lambda_context, "clip_processor_task")
 
     image_record = EmbedRecord.model_validate(record)
     logger.info({"mapped_image_record": image_record})
 
+    http_session = await http_session_task
     raw_image_task = asyncio.create_task(fetch_raw_image(image_record, http_session))
     raw_image = await raw_image_task
     logger.info({"raw_image": raw_image})
