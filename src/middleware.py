@@ -28,7 +28,7 @@ def model_middleware(
         os.environ.get('CLIP_ROOT_DIR', '.'),
         CLIP_FOLDER
     )
-    clip_path = os.path.join(clip_dir, "clip_vis.onnx")
+    clip_path = os.path.join(clip_dir, "clip_vis_quantized.onnx")
 
     session_opts = SessionOptions()
     providers = ["CPUExecutionProvider"]

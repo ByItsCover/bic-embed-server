@@ -15,7 +15,7 @@ processor = AsyncBatchProcessor(event_type=EventType.SQS)
 logger = Logger()
 
 
-#@model_middleware
+@model_middleware
 @lance_middleware
 @http_middleware
 def lambda_handler(event, context: LambdaContext):
