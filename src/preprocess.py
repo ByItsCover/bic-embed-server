@@ -15,8 +15,6 @@ logger = Logger()
 async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
     logger.info(lambda_context)
     logger.info(f"Record: {record}")
-    logger.info(record)
-    logger.info(record.body)
 
     processor_task: Task[CLIPImageProcessorPil] = getattr(lambda_context, "clip_processor_task")
 
@@ -27,7 +25,7 @@ async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
     logger.info({"raw_image": raw_image})
 
     processor = await processor_task
-    image_arr: NDArray = processor(raw_image)["pixel_values"]
+    image_arr: NDArray = processor(raw_image)["pixel_values"][0]
     logger.info({"image_arr": image_arr})
     image_record.image_array = image_arr
     return image_record
