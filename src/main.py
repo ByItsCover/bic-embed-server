@@ -4,8 +4,7 @@ from aws_lambda_powertools.utilities.batch import (
     EventType,
 )
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from numpy.typing import NDArray
-from middleware import model_middleware, lance_middleware, http_middleware
+from middleware import model_middleware, lance_middleware
 from preprocess import record_handler
 from postprocess import process_content
 from utils.loop import ensure_loop
@@ -17,7 +16,6 @@ logger = Logger()
 
 @model_middleware
 @lance_middleware
-@http_middleware
 def lambda_handler(event, context: LambdaContext):
     loop = ensure_loop()
     records = event["Records"]
