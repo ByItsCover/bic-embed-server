@@ -4,37 +4,75 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools import Logger
 from onnxruntime import InferenceSession
 from lancedb import AsyncTable
+import numpy as np
 from numpy.typing import NDArray
+from pydantic import TypeAdapter
 from utils.loop import ensure_loop
+from utils.db_tables import Cover
+from utils.array_ops import normalize
 from config.schemas import EmbedRecord
-from config.constants import CLIP_INPUT_NAME
+from config.constants import (CLIP_INPUT_NAME, TOWER_ITEM_INPUT,
+                              TOWER_ID_INPUT, COVER_ID_FIELD)
 
 logger = Logger()
 
 
-async def process_content(items: list[EmbedRecord], lambda_context: LambdaContext):
+async def process_content(records: list[EmbedRecord], lambda_context: LambdaContext):
     loop = ensure_loop()
 
     logger.info(lambda_context)
-    logger.info({"items": items})
+    logger.info({"items": records})
 
-    #item_tower_task: Task[InferenceSession] = getattr(lambda_context, "item_tower_task")
-    #clip_vis_task: Task[InferenceSession] = getattr(lambda_context, "clip_vis_task")
+    item_tower_task: Task[InferenceSession] = getattr(lambda_context, "item_tower_task")
+    clip_vis_task: Task[InferenceSession] = getattr(lambda_context, "clip_vis_task")
     cover_table_task: Task[AsyncTable] = getattr(lambda_context, "cover_table_task")
 
-    images_list = [record.image_array for record in items]
+    images_list = []
+    id_list = []
+    for record in records:
+        images_list.append(record.image_array)
+        id_list.append(record.cover_id)
 
-    """
     clip_vis = loop.run_until_complete(clip_vis_task)
-    embeddings = await asyncio.to_thread(
+    logger.info({"clip_vis": clip_vis})
+    clip_embeddings = await asyncio.to_thread(
         clip_vis.run,
         None,
-        {CLIP_INPUT_NAME: images_list}
+        {CLIP_INPUT_NAME: np.vstack(images_list)}
     )
-    processed_embeddings: list[NDArray] = embeddings[0].tolist()
-    """
-    
+    clip_embeds_processed: list[NDArray] = [
+        normalize(embed) for embed in clip_embeddings[0].tolist()
+    ]
+
+    item_tower = loop.run_until_complete(item_tower_task)
+    logger.info({"item_tower": item_tower})
+    tower_embeddings = await asyncio.to_thread(
+        item_tower.run,
+        None,
+        {
+            TOWER_ITEM_INPUT: np.vstack(clip_embeds_processed),
+            TOWER_ID_INPUT: np.array(id_list)
+        }
+    )
+    tower_embeds_processed: list[NDArray] = [
+        normalize(embed) for embed in tower_embeddings[0].tolist()
+    ]
+
+    cover_list = [
+        Cover(
+            **records[i].model_dump(),
+            cover_embedding=clip_embeds_processed[i],
+            tower_embedding=tower_embeds_processed[i]
+        )
+        for i in range(len(records))
+    ]
+
+    covers_adapter = TypeAdapter(list[Cover])
     cover_table = loop.run_until_complete(cover_table_task)
-    logger.info({"cover_table": cover_table})
-    #loop.run_until_complete(item_tower_task)
-    #loop.run_until_complete(cover_table_task)
+    table_res = await (
+        cover_table.merge_insert(COVER_ID_FIELD)
+        .when_matched_update_all()
+        .when_not_matched_insert_all()
+        .execute(covers_adapter.dump_python(cover_list))
+    )
+    logger.info({"table_res": table_res})
