@@ -19,7 +19,7 @@ logger = Logger()
 async def build_record(message_id: str, metadata_task: Awaitable[dict[str, str]]):
     metadata = await metadata_task
     logger.info({"metadata": metadata})
-    record = EmbedRecord(**metadata, messageId=message_id)
+    record = EmbedRecord(**metadata, message_id=message_id)
     logger.info({"parsed_record": record})
     return record
 
