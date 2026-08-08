@@ -3,11 +3,12 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools import Logger
 from onnxruntime import InferenceSession
 from transformers import CLIPImageProcessorPil
+from numpy.typing import NDArray
 
 logger = Logger()
 
 
-async def embed_content(items: list[int], lambda_context: LambdaContext):
+async def embed_content(items: list[NDArray], lambda_context: LambdaContext):
     logger.info(lambda_context)
     logger.info({"items": items})
 

@@ -1,13 +1,16 @@
 import asyncio
+from asyncio import Task
 from aws_lambda_powertools.utilities.data_classes.sqs_event import SQSRecord
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools import Logger
+from transformers import CLIPImageProcessorPil
 from config.schemas import ImageRecord, ProcessError
 
 from aiohttp import ClientSession
 from PIL import Image
 from PIL.ImageFile import ImageFile
 import io
+from numpy.typing import NDArray
 
 logger = Logger()
 
@@ -28,18 +31,17 @@ async def record_handler(record: SQSRecord, lambda_context: LambdaContext):
     logger.info(record)
     logger.info(record.body)
 
+    http_session: ClientSession = getattr(lambda_context, "http_session")
+    processor_task: Task[CLIPImageProcessorPil] = getattr(lambda_context, "clip_processor_task")
+
     image_record = ImageRecord.model_validate(record)
     logger.info({"mapped_image_record": image_record})
 
-    http_session: ClientSession = getattr(lambda_context, "http_session")
     raw_image_task = asyncio.create_task(fetch_raw_image(image_record, http_session))
-    logger.info({"raw_image": await raw_image_task})
+    raw_image = await raw_image_task
+    logger.info({"raw_image": raw_image})
 
-    # efs_dir = os.environ.get('MODEL_ROOT_DIR', '.')
-    # print("EFS dir:", efs_dir)
-    # files = os.listdir(efs_dir)
-    # logger.info(files)
-    #
-    # cool_thing: LeMickey = getattr(lambda_context, "cool_thing")
-    # logger.info({"cool_thing": cool_thing.call_stuff()})
-    return 13
+    processor = await processor_task
+    image_arr: NDArray = processor(raw_image)["pixel_values"]
+    logger.info({"image_arr_shape": image_arr.shape})
+    return image_arr
