@@ -9,12 +9,13 @@ from middleware import model_middleware, lance_middleware, http_middleware
 from preprocess import record_handler
 from postprocess import process_content
 from utils.loop import ensure_loop
+from config.schemas import EmbedRecord
 
 processor = AsyncBatchProcessor(event_type=EventType.SQS)
 logger = Logger()
 
 
-@model_middleware
+#@model_middleware
 @lance_middleware
 @http_middleware
 def lambda_handler(event, context: LambdaContext):
@@ -23,7 +24,7 @@ def lambda_handler(event, context: LambdaContext):
     with processor(records, record_handler, context):
         processed_messages = processor.async_process()
 
-    items: list[NDArray] = []
+    items: list[EmbedRecord] = []
     for status, result, record in processed_messages:
         logger.info(result)
         items.append(result)
